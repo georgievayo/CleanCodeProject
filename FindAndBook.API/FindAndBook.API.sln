@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FindAndBook.Tests", "FindAn
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FindAndBook.Factories", "FindAndBook.Factories\FindAndBook.Factories.csproj", "{0A8C83BD-1868-4F53-B6B9-21CD38544AE2}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FindAndBook.Services", "FindAndBook.Services\FindAndBook.Services.csproj", "{1D8146F6-E928-4ECF-9695-F9E6612FC98E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{0A8C83BD-1868-4F53-B6B9-21CD38544AE2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0A8C83BD-1868-4F53-B6B9-21CD38544AE2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0A8C83BD-1868-4F53-B6B9-21CD38544AE2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1D8146F6-E928-4ECF-9695-F9E6612FC98E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1D8146F6-E928-4ECF-9695-F9E6612FC98E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1D8146F6-E928-4ECF-9695-F9E6612FC98E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1D8146F6-E928-4ECF-9695-F9E6612FC98E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
