@@ -20,11 +20,11 @@ namespace FindAndBook.Services
             this.factory = factory;
         }
 
-        public Restaurant CreateRestaurant(string name, string contact, string weekendHours,
+        public Restaurant Create(string name, string contact, string weekendHours,
             string weekdaayHours, string photo, string details, int? averageBill, string managerId, string address)
         {
-            var restaurant = this.factory.Create(name, contact, weekendHours,
-                weekdaayHours, details, averageBill, managerId, address);
+            var restaurant = this.factory.Create(name, contact, weekendHours, 
+                weekdaayHours, photo, details, averageBill, managerId, address);
 
             this.repository.Add(restaurant);
             this.unitOfWork.Commit();

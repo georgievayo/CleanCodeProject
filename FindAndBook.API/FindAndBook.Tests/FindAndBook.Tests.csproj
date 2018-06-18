@@ -72,6 +72,7 @@
     <Compile Include="Data\RepositoryTests.cs" />
     <Compile Include="Data\UnitOfWorkTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Services\RestaurantsServiceTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -80,6 +81,18 @@
     <ProjectReference Include="..\FindAndBook.Data\FindAndBook.Data.csproj">
       <Project>{44A7FA83-9FBB-4580-B1EB-CB04BD77DC2C}</Project>
       <Name>FindAndBook.Data</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\FindAndBook.Factories\FindAndBook.Factories.csproj">
+      <Project>{0A8C83BD-1868-4F53-B6B9-21CD38544AE2}</Project>
+      <Name>FindAndBook.Factories</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\FindAndBook.Models\FindAndBook.Models.csproj">
+      <Project>{947A3E57-4407-4409-8342-2A5FE4A37B64}</Project>
+      <Name>FindAndBook.Models</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\FindAndBook.Services\FindAndBook.Services.csproj">
+      <Project>{1D8146F6-E928-4ECF-9695-F9E6612FC98E}</Project>
+      <Name>FindAndBook.Services</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
