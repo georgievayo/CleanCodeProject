@@ -75,6 +75,10 @@
       <Project>{947A3E57-4407-4409-8342-2A5FE4A37B64}</Project>
       <Name>FindAndBook.Models</Name>
     </ProjectReference>
+    <ProjectReference Include="..\FindAndBook.Providers\FindAndBook.Providers.csproj">
+      <Project>{14F5FCBB-D805-4F9D-AFBA-071E21CC6C74}</Project>
+      <Name>FindAndBook.Providers</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

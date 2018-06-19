@@ -1,6 +1,7 @@
 ﻿using FindAndBook.Data.Contracts;
 using FindAndBook.Factories;
 using FindAndBook.Models;
+using FindAndBook.Providers.Contracts;
 using FindAndBook.Services.Contracts;
 using System;
 using System.Linq;
@@ -12,11 +13,14 @@ namespace FindAndBook.Services
         private readonly IRepository<Token> repository;
         private readonly IUnitOfWork unitOfWork;
         private readonly ITokensFactory factory;
+        private readonly IDateTimeProvider dateTimeProvider;
 
-        public AuthService(IRepository<Token> repository, IUnitOfWork unitOfWork)
+        public AuthService(IRepository<Token> repository, IUnitOfWork unitOfWork, ITokensFactory factory, IDateTimeProvider dateTimeProvider)
         {
             this.repository = repository;
             this.unitOfWork = unitOfWork;
+            this.factory = factory;
+            this.dateTimeProvider = dateTimeProvider;
         }
 
         public void DeleteExpiredTokens()
@@ -49,7 +53,8 @@ namespace FindAndBook.Services
 
             if(token != null)
             {
-                token.ExpirationTime = DateTime.Now + new TimeSpan(0, 30, 0);
+                var currentTime = this.dateTimeProvider.GetCurrentTime();
+                token.ExpirationTime = currentTime + new TimeSpan(0, 30, 0);
                 this.unitOfWork.Commit();
             }
             else
@@ -60,7 +65,8 @@ namespace FindAndBook.Services
 
         public void SaveUserToken(string userId, string tokenValue)
         {
-            var expirationTime = DateTime.Now + new TimeSpan(0, 30, 0);
+            var currentTime = this.dateTimeProvider.GetCurrentTime();
+            var expirationTime = currentTime + new TimeSpan(0, 30, 0);
             var token = this.factory.Create(userId, tokenValue, expirationTime);
 
             this.repository.Add(token);
@@ -69,9 +75,11 @@ namespace FindAndBook.Services
 
         private IQueryable<Token> GetExpiredTokens()
         {
+            var currentTime = this.dateTimeProvider.GetCurrentTime();
+
             return this.repository
                 .All
-                .Where(token => token.ExpirationTime < DateTime.Now);
+                .Where(token => token.ExpirationTime < currentTime);
         }
 
         private Token GetTokenByValue(string tokenValue)
