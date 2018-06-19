@@ -48,8 +48,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <!--<Compile Include="BookedTablesService.cs" />
-    <Compile Include="BookingsService.cs" />-->
+    <!--<Compile Include="BookedTablesService.cs" />-->
+    <Compile Include="BookingsService.cs" />
     <Compile Include="Contracts\IRestaurantsService.cs" />
     <Compile Include="RestaurantsService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
