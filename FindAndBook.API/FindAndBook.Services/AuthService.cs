@@ -40,6 +40,7 @@ namespace FindAndBook.Services
             if(token != null)
             {
                 this.repository.Delete(token);
+                this.unitOfWork.Commit();
             }
             else
             {
@@ -55,6 +56,8 @@ namespace FindAndBook.Services
             {
                 var currentTime = this.dateTimeProvider.GetCurrentTime();
                 token.ExpirationTime = currentTime + new TimeSpan(0, 30, 0);
+
+                this.repository.Update(token);
                 this.unitOfWork.Commit();
             }
             else
