@@ -17,7 +17,7 @@ namespace FindAndBook.Tests.Services
             "some details", 12, "d547a40d - c45f - 4c43 - 99de - 0bfe9199ff95",
             "Sofia")]
         public void MethodCreateShould_CallFactoryMethodCreaterestaurant(string name, string contact,
-            string weekendHours, string weekdaayHours, string photo, string details, int? averageBill,
+            string weekendHours, string weekdaayHours, string photo, string details, int averageBill,
             string userId, string address)
         {
             var repositoryMock = new Mock<IRepository<Restaurant>>();
@@ -38,7 +38,7 @@ namespace FindAndBook.Tests.Services
             "some details", 12, "d547a40d - c45f - 4c43 - 99de - 0bfe9199ff95",
             "Sofia")]
         public void MethodCreateShould_CallRepositoryMethodAdd(string name, string contact,
-            string weekendHours, string weekdaayHours, string photo, string details, int? averageBill,
+            string weekendHours, string weekdaayHours, string photo, string details, int averageBill,
             string userId, string address)
         {
             var repositoryMock = new Mock<IRepository<Restaurant>>();
@@ -73,7 +73,7 @@ namespace FindAndBook.Tests.Services
             "some details", 12, "d547a40d - c45f - 4c43 - 99de - 0bfe9199ff95",
             "Sofia")]
         public void MethodCreateShould_CallUnitOfWorkMethodCommit(string name, string contact,
-            string weekendHours, string weekdaayHours, string photo, string details, int? averageBill,
+            string weekendHours, string weekdaayHours, string photo, string details, int averageBill,
             string userId, string address)
         {
             var repositoryMock = new Mock<IRepository<Restaurant>>();
@@ -108,7 +108,7 @@ namespace FindAndBook.Tests.Services
             "some details", 12, "d547a40d - c45f - 4c43 - 99de - 0bfe9199ff95",
             "Sofia")]
         public void MethodCreateShould_ReturnCorrectResult(string name, string contact, string photo,
-            string weekendHours, string weekdaayHours, string details, int? averageBill,
+            string weekendHours, string weekdaayHours, string details, int averageBill,
             string userId, string address)
         {
             var repositoryMock = new Mock<IRepository<Restaurant>>();

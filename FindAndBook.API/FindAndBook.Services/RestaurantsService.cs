@@ -1,13 +1,14 @@
 ﻿using FindAndBook.Data.Contracts;
 using FindAndBook.Factories;
 using FindAndBook.Models;
+using FindAndBook.Services.Contracts;
 using System;
 using System.Data.Entity;
 using System.Linq;
 
 namespace FindAndBook.Services
 {
-    public class RestaurantsService
+    public class RestaurantsService : IRestaurantsService
     {
         private readonly IRepository<Restaurant> repository;
         private readonly IUnitOfWork unitOfWork;
@@ -21,7 +22,7 @@ namespace FindAndBook.Services
         }
 
         public Restaurant Create(string name, string contact, string weekendHours,
-            string weekdaayHours, string photo, string details, int? averageBill, string managerId, string address)
+            string weekdaayHours, string photo, string details, int averageBill, string managerId, string address)
         {
             var restaurant = this.factory.Create(name, contact, weekendHours, 
                 weekdaayHours, photo, details, averageBill, managerId, address);
@@ -37,10 +38,10 @@ namespace FindAndBook.Services
             return this.repository.All;
         }
 
-        public IQueryable<Restaurant> GetById(Guid id)
+        public Restaurant GetById(Guid id)
         {
             return this.repository.All
-                .Where(x => x.Id == id);
+                .FirstOrDefault(x => x.Id == id);
         }
 
         public IQueryable<Restaurant> GetUserRestaurants(string userId)
@@ -89,6 +90,23 @@ namespace FindAndBook.Services
             return this.repository
                 .All
                 .Where(x => x.AverageBill == averageBill);
+        }
+
+        public IQueryable<Restaurant> FindBy(string searchBy, string pattern)
+        {
+            if (searchBy == "Name")
+            {
+                return this.FindByName(pattern);
+            }
+            else if (searchBy == "Address")
+            {
+                return this.FindByAddress(pattern);
+            }
+            else
+            {
+                var averageBill = int.Parse(pattern);
+                return this.FindByAverageBill(averageBill);
+            }
         }
 
         public void Delete(Guid id)
