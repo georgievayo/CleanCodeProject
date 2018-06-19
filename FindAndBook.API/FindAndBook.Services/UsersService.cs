@@ -2,6 +2,7 @@
 using FindAndBook.Factories;
 using FindAndBook.Models;
 using FindAndBook.Services.Contracts;
+using System;
 using System.Data.Entity;
 using System.Linq;
 
@@ -22,7 +23,7 @@ namespace FindAndBook.Services
             this.usersFactory = usersFactory;
         }
 
-        public User GetById(string id)
+        public User GetById(Guid id)
         {
             var foundUser = this.repository.GetById(id);
 
@@ -37,7 +38,14 @@ namespace FindAndBook.Services
                 .Include(x => x.Bookings);
         }
 
-        public User GetUserWithBookings(string id)
+        public User GetByUsernameAndPassword(string username, string password)
+        {
+            return this.repository
+                .All
+                .FirstOrDefault(u => u.UserName == username && u.Password == password);
+        }
+
+        public User GetUserWithBookings(Guid id)
         {
             return this.repository
                 .All
@@ -46,9 +54,9 @@ namespace FindAndBook.Services
                 .FirstOrDefault();
         }
 
-        public User Create(string username, string email, string firstName, string lastName, string phoneNumber)
+        public User Create(string username, string password, string email, string firstName, string lastName, string phoneNumber)
         {
-            var user = this.usersFactory.Create(username, email, firstName, lastName, phoneNumber);
+            var user = this.usersFactory.Create(username, password, email, firstName, lastName, phoneNumber);
 
             return user;
         }
@@ -58,7 +66,7 @@ namespace FindAndBook.Services
             return this.repository.All;
         }
 
-        public void Delete(string id)
+        public void Delete(Guid id)
         {
             var user = this.repository.GetById(id);
 

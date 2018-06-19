@@ -1,16 +1,19 @@
-﻿using System.Web.Http;
+﻿using System.IdentityModel.Tokens.Jwt;
+using System.Web.Http;
 using Autofac;
 using Autofac.Integration.WebApi;
 using Autofac.TypedFactories;
 using FindAndBook.Data;
 using FindAndBook.Data.Contracts;
 using FindAndBook.Factories;
+using FindAndBook.Providers;
+using FindAndBook.Providers.Contracts;
 using FindAndBook.Services;
 using FindAndBook.Services.Contracts;
 using Microsoft.Owin;
 using Owin;
 
-[assembly: OwinStartup(typeof(FindAndBook.API.Startup))]
+//[assembly: OwinStartup(typeof(FindAndBook.API.Startup))]
 
 namespace FindAndBook.API
 {
@@ -58,6 +61,13 @@ namespace FindAndBook.API
             AutofacTypedFactoryExtensions.RegisterTypedFactory<IBookedTablesFactory>(builder).ReturningConcreteType();
             AutofacTypedFactoryExtensions.RegisterTypedFactory<ITablesFactory>(builder).ReturningConcreteType();
             AutofacTypedFactoryExtensions.RegisterTypedFactory<ITokensFactory>(builder).ReturningConcreteType();
+
+            builder.RegisterType<JwtSecurityTokenHandler>()
+                .AsSelf()
+                .InstancePerRequest();
+            builder.RegisterType<AuthenticationProvider>()
+                .As<IAuthenticationProvider>()
+                .InstancePerRequest();
 
             var config = GlobalConfiguration.Configuration;
             builder.RegisterWebApiFilterProvider(config);

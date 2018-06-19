@@ -1,14 +1,13 @@
-﻿using FindAndBook.Models;
-using Microsoft.AspNet.Identity.EntityFramework;
+﻿using FindAndBook.Data.Contracts;
+using FindAndBook.Models;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Data.Entity;
 
 namespace FindAndBook.Data
 {
-    public partial class DbContext : IdentityDbContext<User>
+    public partial class DbContext : System.Data.Entity.DbContext, IDbContext
     {
-        public DbContext()
-            : base("FindAndBook", throwIfV1Schema: false)
+        public DbContext() : base("FindAndBook")
         {
             Database.SetInitializer<DbContext>(null);
         }
