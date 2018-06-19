@@ -57,6 +57,7 @@
     <Compile Include="Booking.cs" />
     <Compile Include="Restaurant.cs" />
     <Compile Include="Table.cs" />
+    <Compile Include="Token.cs" />
     <Compile Include="User.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
