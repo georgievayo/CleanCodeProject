@@ -22,7 +22,7 @@ namespace FindAndBook.Services
             this.factory = factory;
         }
 
-        public IQueryable<Booking> GetBookingsOfPlace(Guid restaurantId)
+        public IQueryable<Booking> GetAllOfRestaurant(Guid restaurantId)
         {
             return this.repository
                 .All
