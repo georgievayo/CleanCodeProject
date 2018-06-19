@@ -1,13 +1,14 @@
 ﻿using FindAndBook.Data.Contracts;
 using FindAndBook.Factories;
 using FindAndBook.Models;
+using FindAndBook.Services.Contracts;
 using System;
 using System.Data.Entity;
 using System.Linq;
 
 namespace FindAndBook.Services
 {
-    public class BookingsService
+    public class BookingsService : IBookingsService
     {
         private readonly IRepository<Booking> repository;
 
@@ -37,7 +38,7 @@ namespace FindAndBook.Services
                 .Include(x => x.Tables);
         }
 
-        public Booking GetById(Guid? id)
+        public Booking GetById(Guid id)
         {
             return this.repository.GetById(id);
         }
