@@ -29,9 +29,6 @@ namespace FindAndBook.Data
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Booking>()
-                .Property(b => b.Id)
-                .HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
-            modelBuilder.Entity<Booking>()
                 .HasMany(x => x.Tables)
                 .WithRequired(x => x.Booking)
                 .WillCascadeOnDelete();

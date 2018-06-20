@@ -25,13 +25,25 @@ namespace FindAndBook.API.Controllers
         {
             if (model == null || !ModelState.IsValid)
             {
-                return BadRequest();
+                return BadRequest(ModelState);
             }
 
-            var user = this.usersService.Create(model.Username, model.Password, model.Email,
+            var existingUser = this.usersService.GetByUsername(model.Username);
+            if(existingUser != null)
+            {
+                return Conflict();
+            }
+
+            var createdUser = this.usersService.Create(model.Username, model.Password, model.Email,
             model.FirstName, model.LastName, model.PhoneNumber);
 
-            return Ok("Successful registration.");
+            var response = new
+            {
+                Id = createdUser.Id,
+                Username = createdUser.UserName
+            };
+
+            return Ok(response);
         }
 
         [HttpPost]
@@ -41,7 +53,7 @@ namespace FindAndBook.API.Controllers
         {
             if (model == null || !ModelState.IsValid)
             {
-                return BadRequest();
+                return BadRequest(ModelState);
             }
 
             var user = this.usersService.GetByUsernameAndPassword(model.Username, model.Password);

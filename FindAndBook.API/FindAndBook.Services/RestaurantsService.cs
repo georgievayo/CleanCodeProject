@@ -22,7 +22,7 @@ namespace FindAndBook.Services
         }
 
         public Restaurant Create(string name, string contact, string weekendHours,
-            string weekdaayHours, string photo, string details, int averageBill, string managerId, string address)
+            string weekdaayHours, string photo, string details, int averageBill, Guid managerId, string address)
         {
             var restaurant = this.factory.Create(name, contact, weekendHours, 
                 weekdaayHours, photo, details, averageBill, managerId, address);
@@ -44,7 +44,7 @@ namespace FindAndBook.Services
                 .FirstOrDefault(x => x.Id == id);
         }
 
-        public IQueryable<Restaurant> GetUserRestaurants(string userId)
+        public IQueryable<Restaurant> GetUserRestaurants(Guid userId)
         {
             return this.repository.All
                 .Where(x => x.ManagerId == userId)
