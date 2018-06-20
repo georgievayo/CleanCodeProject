@@ -68,12 +68,18 @@ namespace FindAndBook.Services
             return this.repository.All;
         }
 
-        public void Delete(Guid id)
+        public bool Delete(Guid id)
         {
             var user = this.repository.GetById(id);
+            if (user == null)
+            {
+                return false;
+            }
 
             this.repository.Delete(user);
             this.unitOfWork.Commit();
+
+            return true;
         }
     }
 }

@@ -3,5 +3,7 @@
     public interface IAuthenticationProvider
     {
         string GenerateToken(string username);
+
+        string CurrentUserID { get; }
     }
 }

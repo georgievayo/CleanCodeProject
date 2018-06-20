@@ -28,17 +28,10 @@ namespace FindAndBook.API.Controllers
                 return BadRequest();
             }
 
-            try
-            {
-                var user = this.usersService.Create(model.Username, model.Password, model.Email,
-                model.FirstName, model.LastName, model.PhoneNumber);
+            var user = this.usersService.Create(model.Username, model.Password, model.Email,
+            model.FirstName, model.LastName, model.PhoneNumber);
 
-                return Ok("Successful registration.");
-            }
-            catch (Exception ex)
-             {
-                return BadRequest("Server error.");
-            }
+            return Ok("Successful registration.");
         }
 
         [HttpPost]
@@ -58,7 +51,8 @@ namespace FindAndBook.API.Controllers
             }
             else
             {
-                var token = this.authProvider.GenerateToken(user.UserName);
+                var userId = user.Id.ToString();
+                var token = this.authProvider.GenerateToken(userId);
                 var response = new { token = token };
                 return Ok(response);
             }
@@ -68,18 +62,25 @@ namespace FindAndBook.API.Controllers
         [Route("api/users/{username}")]
         public IHttpActionResult GetProfile([FromUri]string username)
         {
+            var currentUserId = this.authProvider.CurrentUserID;
+
             if (username == null || String.IsNullOrEmpty(username))
             {
                 return BadRequest();
             }
 
             var user = this.usersService.GetByUsername(username);
-            if(user == null)
+            if (user == null)
             {
                 return NotFound();
             }
             else
             {
+                if (user.Id.ToString() != currentUserId)
+                {
+                    return Content(System.Net.HttpStatusCode.Forbidden, "You cannot see this page.");
+                }
+
                 var response = new
                 {
                     Username = user.UserName,
@@ -90,6 +91,28 @@ namespace FindAndBook.API.Controllers
                 };
 
                 return Ok(response);
+            }
+        }
+
+        [HttpDelete]
+        [Route("api/users/{userId}")]
+        public IHttpActionResult DeleteUser([FromUri]string userId)
+        {
+            var currentUserId = this.authProvider.CurrentUserID;
+
+            if (userId == null || String.IsNullOrEmpty(userId))
+            {
+                return BadRequest();
+            }
+
+            var isDeleted = this.usersService.Delete(Guid.Parse(userId));
+            if (isDeleted)
+            {
+                return Ok();
+            }
+            else
+            {
+                return NotFound();
             }
         }
     }

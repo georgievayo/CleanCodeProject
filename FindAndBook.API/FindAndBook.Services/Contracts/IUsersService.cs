@@ -18,6 +18,6 @@ namespace FindAndBook.Services.Contracts
 
         IQueryable<User> GetAll();
 
-        void Delete(Guid id);
+        bool Delete(Guid id);
     }
 }

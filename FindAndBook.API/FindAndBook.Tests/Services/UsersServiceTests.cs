@@ -83,7 +83,8 @@ namespace FindAndBook.Tests.Services
             var unitOfWorkMock = new Mock<IUnitOfWork>();
             var factoryMock = new Mock<IUsersFactory>();
             var guidId = Guid.Parse(id);
-
+            repositoryMock.Setup(r => r.GetById(guidId)).Returns(() => new User() { Id = guidId });
+          
             var service = new UsersService(repositoryMock.Object, unitOfWorkMock.Object, factoryMock.Object);
             service.Delete(guidId);
 

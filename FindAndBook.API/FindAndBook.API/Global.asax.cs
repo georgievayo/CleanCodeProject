@@ -62,6 +62,9 @@ namespace FindAndBook.API
             builder.RegisterType<JwtSecurityTokenHandler>()
                 .AsSelf()
                 .InstancePerRequest();
+            builder.RegisterType<HttpContextProvider>()
+                .As<IHttpContextProvider>()
+                .InstancePerRequest();
             builder.RegisterType<DateTimeProvider>()
                 .As<IDateTimeProvider>()
                 .InstancePerRequest();
