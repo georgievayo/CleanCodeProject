@@ -40,7 +40,6 @@ namespace FindAndBook.API
             AutofacTypedFactoryExtensions.RegisterTypedFactory<IRestaurantsFactory>(builder).ReturningConcreteType();
             AutofacTypedFactoryExtensions.RegisterTypedFactory<IBookedTablesFactory>(builder).ReturningConcreteType();
             AutofacTypedFactoryExtensions.RegisterTypedFactory<ITablesFactory>(builder).ReturningConcreteType();
-            AutofacTypedFactoryExtensions.RegisterTypedFactory<ITokensFactory>(builder).ReturningConcreteType();
 
             // Service layer Bindings
             builder.RegisterType<RestaurantsService>()
