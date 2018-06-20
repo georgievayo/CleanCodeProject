@@ -11,6 +11,7 @@ namespace FindAndBook.Models
         {
             this.Bookings = new HashSet<Booking>();
             this.Restaurants = new HashSet<Restaurant>();
+            this.Id = Guid.NewGuid();
         }
 
         public User(string username, string password, string email, string firstName, string lastName, string phoneNumber)

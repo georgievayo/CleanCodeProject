@@ -54,7 +54,7 @@ namespace FindAndBook.Tests.Services
             var service = new UsersService(repositoryMock.Object, unitOfWorkMock.Object, factoryMock.Object);
             service.Delete(guidId);
 
-            repositoryMock.Verify(r => r.GetById(id), Times.Once);
+            repositoryMock.Verify(r => r.GetById(guidId), Times.Once);
         }
 
         [TestCase("d547a40d-c45f-4c43-99de-0bfe9199ff95")]
@@ -67,7 +67,7 @@ namespace FindAndBook.Tests.Services
 
             var guidId = Guid.Parse(id);
             var user = new User() { Id = guidId };
-            repositoryMock.Setup(r => r.GetById(id)).Returns(user);
+            repositoryMock.Setup(r => r.GetById(guidId)).Returns(user);
 
             var service = new UsersService(repositoryMock.Object, unitOfWorkMock.Object, factoryMock.Object);
             service.Delete(guidId);
@@ -130,7 +130,7 @@ namespace FindAndBook.Tests.Services
             var service = new UsersService(repositoryMock.Object, unitOfWorkMock.Object, factoryMock.Object);
             service.GetById(guidId);
 
-            repositoryMock.Verify(r => r.GetById(id), Times.Once);
+            repositoryMock.Verify(r => r.GetById(guidId), Times.Once);
         }
 
         [TestCase("d547a40d-c45f-4c43-99de-0bfe9199ff95")]
@@ -143,7 +143,7 @@ namespace FindAndBook.Tests.Services
             var foundUserMock = new Mock<User>();
             var guidId = Guid.Parse(id);
 
-            repositoryMock.Setup(r => r.GetById(id)).Returns(foundUserMock.Object);
+            repositoryMock.Setup(r => r.GetById(guidId)).Returns(foundUserMock.Object);
 
             var service = new UsersService(repositoryMock.Object, unitOfWorkMock.Object, factoryMock.Object);
             var result = service.GetById(guidId);
@@ -179,7 +179,7 @@ namespace FindAndBook.Tests.Services
             var service = new UsersService(repositoryMock.Object, unitOfWorkMock.Object, factoryMock.Object);
             var result = service.GetByUsername(username);
 
-            Assert.Contains(foundUser, result.ToList());
+            Assert.AreSame(foundUser, result);
         }
 
         [TestCase("d547a40d-c45f-4c43-99de-0bfe9199ff95")]

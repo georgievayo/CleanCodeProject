@@ -30,12 +30,12 @@ namespace FindAndBook.Services
             return foundUser;
         }
 
-        public IQueryable<User> GetByUsername(string username)
+        public User GetByUsername(string username)
         {
             return this.repository
                 .All
-                .Where(u => u.UserName == username)
-                .Include(x => x.Bookings);
+                .Include(x => x.Bookings)
+                .FirstOrDefault(u => u.UserName == username);
         }
 
         public User GetByUsernameAndPassword(string username, string password)
@@ -57,6 +57,8 @@ namespace FindAndBook.Services
         public User Create(string username, string password, string email, string firstName, string lastName, string phoneNumber)
         {
             var user = this.usersFactory.Create(username, password, email, firstName, lastName, phoneNumber);
+            this.repository.Add(user);
+            this.unitOfWork.Commit();
 
             return user;
         }

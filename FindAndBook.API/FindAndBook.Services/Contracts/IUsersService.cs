@@ -8,7 +8,7 @@ namespace FindAndBook.Services.Contracts
     {
         User GetById(Guid id);
 
-        IQueryable<User> GetByUsername(string username);
+        User GetByUsername(string username);
 
         User GetByUsernameAndPassword(string username, string password);
 
