@@ -3,7 +3,6 @@ using FindAndBook.Factories;
 using FindAndBook.Models;
 using FindAndBook.Services.Contracts;
 using System;
-using System.Data.Entity;
 using System.Linq;
 
 namespace FindAndBook.Services
@@ -16,11 +15,15 @@ namespace FindAndBook.Services
 
         private readonly IBookingsFactory factory;
 
-        public BookingsService(IRepository<Booking> repository, IUnitOfWork unitOfWork, IBookingsFactory factory)
+        private readonly IRestaurantsService restaurantsService;
+
+        public BookingsService(IRepository<Booking> repository, IUnitOfWork unitOfWork, 
+            IBookingsFactory factory, IRestaurantsService restaurantsService)
         {
             this.repository = repository;
             this.unitOfWork = unitOfWork;
             this.factory = factory;
+            this.restaurantsService = restaurantsService;
         }
 
         public IQueryable<Booking> GetAllOfRestaurant(Guid restaurantId)
@@ -34,8 +37,7 @@ namespace FindAndBook.Services
         {
             return this.repository
                 .All
-                .Where(x => x.DateTime == dateTime && x.RestaurantId == restaurantId)
-                .Include(x => x.Tables);
+                .Where(x => x.DateTime == dateTime && x.RestaurantId == restaurantId);
         }
 
         public Booking GetById(Guid id)
@@ -43,7 +45,7 @@ namespace FindAndBook.Services
             return this.repository.GetById(id);
         }
 
-        public Booking Create(Guid restaurantId, string userId, DateTime dateTime, int people)
+        public Booking Create(Guid restaurantId, Guid userId, DateTime dateTime, int people)
         {
             var booking = this.factory.Create(restaurantId, userId, dateTime, people);
 
@@ -51,6 +53,26 @@ namespace FindAndBook.Services
             this.unitOfWork.Commit();
 
             return booking;
+        }
+
+        public Booking BookTable(Guid restaurantId, Guid userId, DateTime dateTime, int peopleCount)
+        {
+            var reserved = this.GetAllOn(dateTime, restaurantId)
+                .Select(b => b.PeopleCount)
+                .ToList()
+                .Sum();
+
+            var maxPeopleCount = this.restaurantsService.GetMaxPeopleCountOf(restaurantId);
+            if(maxPeopleCount - reserved < peopleCount)
+            {
+                return null;
+            }
+            else
+            {
+                var booking = this.Create(restaurantId, userId, dateTime, peopleCount);
+
+                return booking;
+            }
         }
 
         public void Delete(Guid id)

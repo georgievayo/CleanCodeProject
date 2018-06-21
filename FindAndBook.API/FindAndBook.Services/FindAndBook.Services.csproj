@@ -48,16 +48,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BookedTablesService.cs" />
     <Compile Include="BookingsService.cs" />
-    <Compile Include="Contracts\IBookedTablesService.cs" />
     <Compile Include="Contracts\IBookingsService.cs" />
     <Compile Include="Contracts\IRestaurantsService.cs" />
-    <Compile Include="Contracts\ITablesService.cs" />
     <Compile Include="Contracts\IUsersService.cs" />
     <Compile Include="RestaurantsService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="TablesService.cs" />
     <Compile Include="UsersService.cs" />
   </ItemGroup>
   <ItemGroup>

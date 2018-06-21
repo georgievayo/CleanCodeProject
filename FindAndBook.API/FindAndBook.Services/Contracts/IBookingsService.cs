@@ -12,7 +12,9 @@ namespace FindAndBook.Services.Contracts
 
         Booking GetById(Guid id);
 
-        Booking Create(Guid restaurantId, string userId, DateTime dateTime, int peopleCount);
+        Booking Create(Guid restaurantId, Guid userId, DateTime dateTime, int peopleCount);
+
+        Booking BookTable(Guid restaurantId, Guid userId, DateTime dateTime, int peopleCount);
 
         void Delete(Guid id);
     }

@@ -9,11 +9,11 @@ namespace FindAndBook.Models
         {
             this.Id = Guid.NewGuid();
             this.Bookings = new HashSet<Booking>();
-            this.Tables = new HashSet<Table>();
         }
 
         public Restaurant(string name, string contact, string weekendHours,
-            string weekdaayHours, string photo, string details, int? averageBill, Guid managerId, string address)
+            string weekdaayHours, string photo, string details, int? averageBill, 
+            Guid managerId, string address, int maxPeopleCount)
             : this()
         {
             this.Name = name;
@@ -25,6 +25,7 @@ namespace FindAndBook.Models
             this.AverageBill = averageBill;
             this.ManagerId = managerId;
             this.Address = address;
+            this.MaxPeopleCount = maxPeopleCount;
         }
 
         public Guid Id { get; set; }
@@ -33,7 +34,7 @@ namespace FindAndBook.Models
 
         public Guid ManagerId { get; set; }
 
-        public virtual User Manager { get; set; }
+        public virtual Manager Manager { get; set; }
 
         public string Name { get; set; }
 
@@ -49,8 +50,8 @@ namespace FindAndBook.Models
 
         public int? AverageBill { get; set; }
 
-        public virtual ICollection<Booking> Bookings { get; set; }
+        public int MaxPeopleCount { get; set; }
 
-        public virtual ICollection<Table> Tables { get; set; }
+        public virtual ICollection<Booking> Bookings { get; set; }
     }
 }

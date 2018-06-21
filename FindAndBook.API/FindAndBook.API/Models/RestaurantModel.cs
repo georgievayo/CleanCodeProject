@@ -30,5 +30,7 @@ namespace FindAndBook.API.Models
 
         [RegularExpression("^[0-9]+$", ErrorMessage = "Average Bill must be a valid number.")]
         public int? AverageBill { get; set; }
+
+        public int MaxPeopleCount { get; set; }
     }
 }

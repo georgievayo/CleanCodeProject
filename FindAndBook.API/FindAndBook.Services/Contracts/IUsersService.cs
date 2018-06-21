@@ -14,7 +14,7 @@ namespace FindAndBook.Services.Contracts
 
         User GetUserWithBookings(Guid id);
 
-        User Create(string username, string password, string email, string firstName, string lastName, string phoneNumber);
+        User Create(string username, string password, string email, string firstName, string lastName, string phoneNumber, string role);
 
         IQueryable<User> GetAll();
 

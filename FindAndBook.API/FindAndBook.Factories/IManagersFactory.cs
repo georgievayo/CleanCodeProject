@@ -2,9 +2,9 @@
 
 namespace FindAndBook.Factories
 {
-    public interface IUsersFactory
+    public interface IManagersFactory
     {
-        User Create(string username, string password, string email, 
+        Manager Create(string username, string password, string email,
             string firstName, string lastName, string phoneNumber);
     }
 }

@@ -28,5 +28,7 @@ namespace FindAndBook.API.Models
         [Required]
         [RegularExpression("[0-9]+", ErrorMessage = "Phone number must contain only digits.")]
         public string PhoneNumber { get; set; }
+
+        public string Role { get; set; }
     }
 }

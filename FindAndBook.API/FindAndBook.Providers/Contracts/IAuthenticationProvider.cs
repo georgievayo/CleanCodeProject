@@ -1,9 +1,13 @@
-﻿namespace FindAndBook.Providers.Contracts
+﻿using System;
+
+namespace FindAndBook.Providers.Contracts
 {
     public interface IAuthenticationProvider
     {
-        string GenerateToken(string username);
+        string GenerateToken(string username, string userRole);
 
-        string CurrentUserID { get; }
+        Guid CurrentUserID { get; }
+
+        string CurrentUserRole { get; }
     }
 }

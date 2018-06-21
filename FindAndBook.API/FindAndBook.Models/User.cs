@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNet.Identity;
-using Microsoft.AspNet.Identity.EntityFramework;
-using System;
+﻿using System;
 using System.Collections.Generic;
 
 namespace FindAndBook.Models
@@ -9,12 +7,13 @@ namespace FindAndBook.Models
     {
         public User()
         {
-            this.Bookings = new HashSet<Booking>();
-            this.Restaurants = new HashSet<Restaurant>();
             this.Id = Guid.NewGuid();
+            this.Role = Role.User;
+            this.Bookings = new HashSet<Booking>();
         }
 
-        public User(string username, string password, string email, string firstName, string lastName, string phoneNumber)
+        public User(string username, string password, string email,
+            string firstName, string lastName, string phoneNumber)
             : this()
         {
             this.UserName = username;
@@ -39,8 +38,8 @@ namespace FindAndBook.Models
 
         public string PhoneNumber { get; set; }
 
-        public virtual ICollection<Booking> Bookings { get; set; }
+        public Role Role { get; set; }
 
-        public virtual ICollection<Restaurant> Restaurants { get; set; }
+        public virtual ICollection<Booking> Bookings { get; set; }
     }
 }

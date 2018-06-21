@@ -193,11 +193,15 @@
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
+    <Compile Include="Controllers\BookingsController.cs" />
     <Compile Include="Controllers\RestaurantsController.cs" />
     <Compile Include="Controllers\UsersController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Mapper\IModelsMapper.cs" />
+    <Compile Include="Mapper\ModelsMapper.cs" />
+    <Compile Include="Models\BookingModel.cs" />
     <Compile Include="Models\LoginModel.cs" />
     <Compile Include="Models\RestaurantModel.cs" />
     <Compile Include="Models\SearchCriteria.cs" />
