@@ -1,4 +1,5 @@
-﻿using FindAndBook.API.Models;
+﻿using FindAndBook.API.Mapper;
+using FindAndBook.API.Models;
 using FindAndBook.Providers.Contracts;
 using FindAndBook.Services.Contracts;
 using Newtonsoft.Json;
@@ -14,10 +15,14 @@ namespace FindAndBook.API.Controllers
 
         private readonly IRestaurantsService restaurantsService;
 
-        public RestaurantsController(IAuthenticationProvider authProvider, IRestaurantsService restaurantsService)
+        private readonly IModelsMapper mapper;
+
+        public RestaurantsController(IAuthenticationProvider authProvider, IRestaurantsService restaurantsService, 
+            IModelsMapper mapper)
         {
             this.authProvider = authProvider;
             this.restaurantsService = restaurantsService;
+            this.mapper = mapper;
         }
 
         [HttpPost]
@@ -63,18 +68,7 @@ namespace FindAndBook.API.Controllers
                 }
                 else
                 {
-                    var response = new
-                    {
-                        Id = restaurant.Id,
-                        Name = restaurant.Name,
-                        Details = restaurant.Details,
-                        Contact = restaurant.Contact,
-                        WeekendHours = restaurant.WeekendHours,
-                        WeekdayHours = restaurant.WeekdayHours,
-                        Address = restaurant.Address,
-                        AverageBill = restaurant.AverageBill,
-                        Manager = restaurant.Manager.FirstName + " " + restaurant.Manager.LastName
-                    };
+                    var response = this.mapper.MapRestaurant(restaurant);
 
                     return Ok(response);
                 }

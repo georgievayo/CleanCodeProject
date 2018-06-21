@@ -13,8 +13,8 @@ namespace FindAndBook.Tests.Services
     [TestFixture]
     public class BookingsServiceTests
     {
-        [TestCase("d547a40d-c45f-4c43-99de-0bfe9199ff95", 10)]
-        public void MethodCreateShould_CallFactoryMethodCreateBooking(string userId, int peopleCount)
+        [TestCase(10)]
+        public void MethodCreateShould_CallFactoryMethodCreateBooking(int peopleCount)
         {
             var repositoryMock = new Mock<IRepository<Booking>>();
             var unitOfWorkMock = new Mock<IUnitOfWork>();
@@ -24,6 +24,7 @@ namespace FindAndBook.Tests.Services
                 unitOfWorkMock.Object, factoryMock.Object);
 
             var restaurantId = Guid.NewGuid();
+            var userId = Guid.NewGuid();
             var dateTime = DateTime.Now;
 
             service.Create(restaurantId, userId, dateTime, peopleCount);
@@ -31,8 +32,8 @@ namespace FindAndBook.Tests.Services
             factoryMock.Verify(f => f.Create(restaurantId, userId, dateTime, peopleCount));
         }
 
-        [TestCase("d547a40d-c45f-4c43-99de-0bfe9199ff95", 5)]
-        public void MethodCreateShould_CallRepositoryMethodAdd(string userId, int peopleCount)
+        [TestCase(5)]
+        public void MethodCreateShould_CallRepositoryMethodAdd(int peopleCount)
         {
             var repositoryMock = new Mock<IRepository<Booking>>();
             var unitOfWorkMock = new Mock<IUnitOfWork>();
@@ -42,13 +43,15 @@ namespace FindAndBook.Tests.Services
                 unitOfWorkMock.Object, factoryMock.Object);
 
             var restaurantId = Guid.NewGuid();
+            var userId = Guid.NewGuid();
+
             var dateTime = DateTime.Now;
             var booking = new Booking()
             {
                 RestaurantId = restaurantId,
                 UserId = userId,
                 DateTime = dateTime,
-                NumberOfPeople = peopleCount
+                PeopleCount = peopleCount
             };
 
             factoryMock.Setup(f => f.Create(restaurantId, userId, dateTime, peopleCount))

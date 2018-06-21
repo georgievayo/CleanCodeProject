@@ -34,8 +34,7 @@ namespace FindAndBook.Services
         {
             return this.repository
                 .All
-                .Where(x => x.DateTime == dateTime && x.RestaurantId == restaurantId)
-                .Include(x => x.Tables);
+                .Where(x => x.DateTime == dateTime && x.RestaurantId == restaurantId);
         }
 
         public Booking GetById(Guid id)
@@ -43,7 +42,7 @@ namespace FindAndBook.Services
             return this.repository.GetById(id);
         }
 
-        public Booking Create(Guid restaurantId, string userId, DateTime dateTime, int people)
+        public Booking Create(Guid restaurantId, Guid userId, DateTime dateTime, int people)
         {
             var booking = this.factory.Create(restaurantId, userId, dateTime, people);
 

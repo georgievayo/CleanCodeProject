@@ -198,6 +198,8 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Mapper\IModelsMapper.cs" />
+    <Compile Include="Mapper\ModelsMapper.cs" />
     <Compile Include="Models\LoginModel.cs" />
     <Compile Include="Models\RestaurantModel.cs" />
     <Compile Include="Models\UserModel.cs" />

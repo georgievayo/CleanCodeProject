@@ -53,10 +53,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BookedTables.cs" />
     <Compile Include="Booking.cs" />
+    <Compile Include="Manager.cs" />
     <Compile Include="Restaurant.cs" />
-    <Compile Include="Table.cs" />
     <Compile Include="User.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

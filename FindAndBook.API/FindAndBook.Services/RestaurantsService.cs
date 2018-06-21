@@ -22,7 +22,7 @@ namespace FindAndBook.Services
         }
 
         public Restaurant Create(string name, string contact, string weekendHours,
-            string weekdaayHours, string photo, string details, int averageBill, Guid managerId, string address)
+            string weekdaayHours, string photo, string details, int? averageBill, Guid managerId, string address)
         {
             var restaurant = this.factory.Create(name, contact, weekendHours, 
                 weekdaayHours, photo, details, averageBill, managerId, address);
@@ -52,7 +52,7 @@ namespace FindAndBook.Services
         }
 
         public Restaurant Edit(Guid id, string contact, string description,
-            string photoUrl, string weekdayHours, string weekendHours, int averageBill)
+            string photoUrl, string weekdayHours, string weekendHours, int? averageBill)
         {
             var restaurant = this.repository.GetById(id);
             if (restaurant != null)

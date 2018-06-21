@@ -2,6 +2,7 @@
 using Autofac.Integration.WebApi;
 using Autofac.TypedFactories;
 using FindAndBook.API.Controllers;
+using FindAndBook.API.Mapper;
 using FindAndBook.Data;
 using FindAndBook.Data.Contracts;
 using FindAndBook.Factories;
@@ -38,8 +39,6 @@ namespace FindAndBook.API
             AutofacTypedFactoryExtensions.RegisterTypedFactory<IUsersFactory>(builder).ReturningConcreteType();
             AutofacTypedFactoryExtensions.RegisterTypedFactory<IBookingsFactory>(builder).ReturningConcreteType();
             AutofacTypedFactoryExtensions.RegisterTypedFactory<IRestaurantsFactory>(builder).ReturningConcreteType();
-            AutofacTypedFactoryExtensions.RegisterTypedFactory<IBookedTablesFactory>(builder).ReturningConcreteType();
-            AutofacTypedFactoryExtensions.RegisterTypedFactory<ITablesFactory>(builder).ReturningConcreteType();
 
             // Service layer Bindings
             builder.RegisterType<RestaurantsService>()
@@ -51,12 +50,6 @@ namespace FindAndBook.API
             builder.RegisterType<BookingsService>()
                    .As<IBookingsService>()
                    .InstancePerRequest();
-            builder.RegisterType<TablesService>()
-                .As<ITablesService>()
-                .InstancePerRequest();
-            builder.RegisterType<BookedTablesService>()
-                .As<IBookedTablesService>()
-                .InstancePerRequest();
 
             builder.RegisterType<JwtSecurityTokenHandler>()
                 .AsSelf()
@@ -70,6 +63,9 @@ namespace FindAndBook.API
             builder.RegisterType<AuthenticationProvider>()
                 .As<IAuthenticationProvider>()
                 .InstancePerRequest();
+            builder.RegisterType<ModelsMapper>()
+                .As<IModelsMapper>()
+                .SingleInstance();
 
             builder.RegisterType<TokenValidationHandler>()
                 .AsWebApiActionFilterFor<UsersController>()

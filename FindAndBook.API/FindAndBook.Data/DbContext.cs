@@ -1,6 +1,5 @@
 ﻿using FindAndBook.Data.Contracts;
 using FindAndBook.Models;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.Data.Entity;
 
 namespace FindAndBook.Data
@@ -17,38 +16,31 @@ namespace FindAndBook.Data
             return new DbContext();
         }
 
+        public DbSet<User> Users { get; set; }
+
+        public DbSet<Manager> Managers { get; set; }
+
         public DbSet<Booking> Bookings { get; set; }
 
         public DbSet<Restaurant> Restaurants { get; set; }
 
-        public DbSet<Table> Tables { get; set; }
-
-        public DbSet<BookedTables> BookedTables { get; set; }
-
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Booking>()
-                .HasMany(x => x.Tables)
-                .WithRequired(x => x.Booking)
-                .WillCascadeOnDelete();
-
             modelBuilder.Entity<Restaurant>()
                 .HasMany(x => x.Bookings)
                 .WithRequired(x => x.Restaurant)
                 .WillCascadeOnDelete();
-            modelBuilder.Entity<Restaurant>()
-                .HasMany(x => x.Tables)
-                .WithRequired(x => x.Restaurant)
-                .WillCascadeOnDelete();
+
             modelBuilder.Entity<Restaurant>()
                 .HasRequired(x => x.Manager)
                 .WithMany(x => x.Restaurants)
-                .WillCascadeOnDelete();
+                .WillCascadeOnDelete(false);
 
-            modelBuilder.Entity<Table>()
-                .Property(x => x.Id)
-                .HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+            modelBuilder.Entity<User>()
+                .HasMany(u => u.Bookings)
+                .WithRequired(b => b.User)
+                .WillCascadeOnDelete();
 
             base.OnModelCreating(modelBuilder);
         }
