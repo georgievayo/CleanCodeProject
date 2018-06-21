@@ -6,6 +6,13 @@ namespace FindAndBook.Models
     {
         public Manager() : base()
         {
+
+        }
+        public Manager(string username, string password, string email,
+            string firstName, string lastName, string phoneNumber) 
+            : base(username, password, email, firstName, lastName, phoneNumber)
+        {
+            this.Role = Role.Manager;
             this.Restaurants = new HashSet<Restaurant>();
         }
 

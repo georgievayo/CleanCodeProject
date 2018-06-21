@@ -8,6 +8,7 @@ namespace FindAndBook.Models
         public User()
         {
             this.Id = Guid.NewGuid();
+            this.Role = Role.User;
             this.Bookings = new HashSet<Booking>();
         }
 
@@ -36,6 +37,8 @@ namespace FindAndBook.Models
         public string LastName { get; set; }
 
         public string PhoneNumber { get; set; }
+
+        public Role Role { get; set; }
 
         public virtual ICollection<Booking> Bookings { get; set; }
     }

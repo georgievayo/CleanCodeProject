@@ -37,6 +37,7 @@ namespace FindAndBook.API
 
             // Factories
             AutofacTypedFactoryExtensions.RegisterTypedFactory<IUsersFactory>(builder).ReturningConcreteType();
+            AutofacTypedFactoryExtensions.RegisterTypedFactory<IManagersFactory>(builder).ReturningConcreteType();
             AutofacTypedFactoryExtensions.RegisterTypedFactory<IBookingsFactory>(builder).ReturningConcreteType();
             AutofacTypedFactoryExtensions.RegisterTypedFactory<IRestaurantsFactory>(builder).ReturningConcreteType();
 

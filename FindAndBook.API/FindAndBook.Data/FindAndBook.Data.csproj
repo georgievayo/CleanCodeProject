@@ -61,6 +61,10 @@
     <Compile Include="Migrations\201806210617590_Initial setup.Designer.cs">
       <DependentUpon>201806210617590_Initial setup.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201806210657395_Add role column to users table..cs" />
+    <Compile Include="Migrations\201806210657395_Add role column to users table..Designer.cs">
+      <DependentUpon>201806210657395_Add role column to users table..cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Repository.cs" />
@@ -79,6 +83,9 @@
   <ItemGroup>
     <EmbeddedResource Include="Migrations\201806210617590_Initial setup.resx">
       <DependentUpon>201806210617590_Initial setup.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201806210657395_Add role column to users table..resx">
+      <DependentUpon>201806210657395_Add role column to users table..cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

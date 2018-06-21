@@ -10,17 +10,22 @@ namespace FindAndBook.Services
 {
     public class UsersService : IUsersService
     {
+        private const string MANAGER_ROLE = "manager";
+
         private IRepository<User> repository;
 
         private IUnitOfWork unitOfWork;
 
         private IUsersFactory usersFactory;
 
-        public UsersService(IRepository<User> repository, IUnitOfWork unitOfWork, IUsersFactory usersFactory)
+        private IManagersFactory managerFactory;
+
+        public UsersService(IRepository<User> repository, IUnitOfWork unitOfWork, IUsersFactory usersFactory, IManagersFactory managerFactory)
         {
             this.repository = repository;
             this.unitOfWork = unitOfWork;
             this.usersFactory = usersFactory;
+            this.managerFactory = managerFactory;
         }
 
         public User GetById(Guid id)
@@ -54,9 +59,18 @@ namespace FindAndBook.Services
                 .FirstOrDefault();
         }
 
-        public User Create(string username, string password, string email, string firstName, string lastName, string phoneNumber)
+        public User Create(string username, string password, string email, string firstName, string lastName, string phoneNumber, string role)
         {
-            var user = this.usersFactory.Create(username, password, email, firstName, lastName, phoneNumber);
+            User user = null;
+            if(role.ToLower() == MANAGER_ROLE)
+            {
+                user = this.managerFactory.Create(username, password, email, firstName, lastName, phoneNumber);
+            }
+            else
+            {
+                this.usersFactory.Create(username, password, email, firstName, lastName, phoneNumber);
+            }
+
             this.repository.Add(user);
             this.unitOfWork.Commit();
 

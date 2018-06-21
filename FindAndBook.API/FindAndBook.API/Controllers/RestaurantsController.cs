@@ -2,7 +2,6 @@
 using FindAndBook.API.Models;
 using FindAndBook.Providers.Contracts;
 using FindAndBook.Services.Contracts;
-using Newtonsoft.Json;
 using System;
 using System.Web.Http;
 
@@ -11,6 +10,8 @@ namespace FindAndBook.API.Controllers
     [RoutePrefix("api/restaurants")]
     public class RestaurantsController : ApiController
     {
+        private const string MANAGER_ROLE = "Manager";
+
         private readonly IAuthenticationProvider authProvider;
 
         private readonly IRestaurantsService restaurantsService;
@@ -34,18 +35,26 @@ namespace FindAndBook.API.Controllers
             }
 
             var currentUserId = this.authProvider.CurrentUserID;
+            var currentUserRole = this.authProvider.CurrentUserRole;
 
-            var createdRestaurant = this.restaurantsService.Create(model.Name, model.Contact, model.WeekendHours, 
+            if(currentUserRole == MANAGER_ROLE)
+            {
+                var createdRestaurant = this.restaurantsService.Create(model.Name, model.Contact, model.WeekendHours,
                 model.WeekdayHours, model.PhotoUrl, model.Details, model.AverageBill, currentUserId, model.Address, model.MaxPeopleCount);
 
-            var response = new
-            {
-                Id = createdRestaurant.Id,
-                Name = createdRestaurant.Name,
-                Details = createdRestaurant.Details
-            };
+                var response = new
+                {
+                    Id = createdRestaurant.Id,
+                    Name = createdRestaurant.Name,
+                    Details = createdRestaurant.Details
+                };
 
-            return Ok(response);
+                return Ok(response);
+            }
+            else
+            {
+                return Content(System.Net.HttpStatusCode.Forbidden, "Only managers can create a restaurant.");
+            }            
         }
 
         [HttpGet]

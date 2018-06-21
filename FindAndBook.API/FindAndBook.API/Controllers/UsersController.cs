@@ -35,7 +35,7 @@ namespace FindAndBook.API.Controllers
             }
 
             var createdUser = this.usersService.Create(model.Username, model.Password, model.Email,
-            model.FirstName, model.LastName, model.PhoneNumber);
+            model.FirstName, model.LastName, model.PhoneNumber, model.Role);
 
             var response = new
             {
@@ -64,7 +64,9 @@ namespace FindAndBook.API.Controllers
             else
             {
                 var userId = user.Id.ToString();
-                var token = this.authProvider.GenerateToken(userId);
+                var userRole = user.Role.ToString();
+
+                var token = this.authProvider.GenerateToken(userId, userRole);
                 var response = new { token = token };
                 return Ok(response);
             }
