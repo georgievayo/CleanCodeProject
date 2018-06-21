@@ -36,7 +36,7 @@ namespace FindAndBook.API.Controllers
             var currentUserId = this.authProvider.CurrentUserID;
 
             var createdRestaurant = this.restaurantsService.Create(model.Name, model.Contact, model.WeekendHours, 
-                model.WeekdayHours, model.PhotoUrl, model.Details, model.AverageBill, Guid.Parse(currentUserId), model.Address);
+                model.WeekdayHours, model.PhotoUrl, model.Details, model.AverageBill, currentUserId, model.Address, model.MaxPeopleCount);
 
             var response = new
             {

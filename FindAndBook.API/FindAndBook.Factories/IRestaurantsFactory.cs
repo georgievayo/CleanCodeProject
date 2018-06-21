@@ -6,6 +6,7 @@ namespace FindAndBook.Factories
     public interface IRestaurantsFactory
     {
         Restaurant Create(string name, string contact, string weekendHours,
-            string weekdaayHours, string photo, string details, int? averageBill, Guid managerId, string address);
+            string weekdaayHours, string photo, string details, int? averageBill,
+            Guid managerId, string address, int maxPeopleCount);
     }
 }

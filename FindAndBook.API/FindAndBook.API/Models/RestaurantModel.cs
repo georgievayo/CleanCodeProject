@@ -23,5 +23,7 @@ namespace FindAndBook.API.Models
         public string Details { get; set; }
 
         public int? AverageBill { get; set; }
+
+        public int MaxPeopleCount { get; set; }
     }
 }

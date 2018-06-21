@@ -88,7 +88,7 @@ namespace FindAndBook.API.Controllers
             }
             else
             {
-                if (user.Id.ToString() != currentUserId)
+                if (user.Id != currentUserId)
                 {
                     return Content(System.Net.HttpStatusCode.Forbidden, "You cannot see this page.");
                 }

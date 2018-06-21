@@ -24,11 +24,11 @@ namespace FindAndBook.Providers
             this.httpContextProvider = httpContextProvider;
         }
 
-        public string CurrentUserID
+        public Guid CurrentUserID
         {
             get
             {
-                return this.httpContextProvider.CurrentHttpContext.User.Identity.Name;
+                return Guid.Parse(this.httpContextProvider.CurrentHttpContext.User.Identity.Name);
             }
         }
 

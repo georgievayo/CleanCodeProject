@@ -22,10 +22,11 @@ namespace FindAndBook.Services
         }
 
         public Restaurant Create(string name, string contact, string weekendHours,
-            string weekdaayHours, string photo, string details, int? averageBill, Guid managerId, string address)
+            string weekdaayHours, string photo, string details, int? averageBill, 
+            Guid managerId, string address, int maxPeopleCount)
         {
             var restaurant = this.factory.Create(name, contact, weekendHours, 
-                weekdaayHours, photo, details, averageBill, managerId, address);
+                weekdaayHours, photo, details, averageBill, managerId, address, maxPeopleCount);
 
             this.repository.Add(restaurant);
             this.unitOfWork.Commit();
@@ -44,15 +45,15 @@ namespace FindAndBook.Services
                 .FirstOrDefault(x => x.Id == id);
         }
 
-        public IQueryable<Restaurant> GetUserRestaurants(Guid userId)
+        public IQueryable<Restaurant> GetRestaurantsOfManger(Guid managerId)
         {
             return this.repository.All
-                .Where(x => x.ManagerId == userId)
+                .Where(x => x.ManagerId == managerId)
                 .Include(x => x.Bookings);
         }
 
         public Restaurant Edit(Guid id, string contact, string description,
-            string photoUrl, string weekdayHours, string weekendHours, int? averageBill)
+            string photoUrl, string weekdayHours, string weekendHours, int? averageBill, int maxPeopleCount)
         {
             var restaurant = this.repository.GetById(id);
             if (restaurant != null)
@@ -63,6 +64,7 @@ namespace FindAndBook.Services
                 restaurant.WeekdayHours = weekdayHours;
                 restaurant.WeekendHours = weekendHours;
                 restaurant.AverageBill = averageBill;
+                restaurant.MaxPeopleCount = maxPeopleCount;
 
                 this.repository.Update(restaurant);
                 this.unitOfWork.Commit();
@@ -109,12 +111,18 @@ namespace FindAndBook.Services
             }
         }
 
-        public void Delete(Guid id)
+        public bool Delete(Guid id)
         {
             var restaurant = this.repository.GetById(id);
+            if(restaurant == null)
+            {
+                return false;
+            }
 
             this.repository.Delete(restaurant);
             this.unitOfWork.Commit();
+
+            return true;
         }
     }
 }
