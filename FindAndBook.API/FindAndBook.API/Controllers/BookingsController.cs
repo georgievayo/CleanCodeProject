@@ -53,5 +53,43 @@ namespace FindAndBook.API.Controllers
                 return BadRequest("Restaurant id is incorrect.");
             }
         }
+
+        [HttpDelete]
+        [Route("api/bookings/{id}")]
+        public IHttpActionResult CancelBooking([FromUri] string id)
+        {
+            if(String.IsNullOrEmpty(id))
+            {
+                return BadRequest("Booking Id is required.");
+            }
+
+            try
+            {
+                var bookingId = Guid.Parse(id);
+
+                var booking = this.bookingsService.GetById(bookingId);
+                if(booking == null)
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    var currentUserId = this.authProvider.CurrentUserID;
+                    if(booking.UserId != currentUserId)
+                    {
+                        return Content(System.Net.HttpStatusCode.Forbidden, "You can cancel only your bookings.");
+                    }
+                    else
+                    {
+                        this.bookingsService.Delete(booking);
+                        return Ok();
+                    }
+                }
+            }
+            catch (FormatException)
+            {
+                return BadRequest("Booking Id is incorrect.");
+            }
+        }
     }
 }

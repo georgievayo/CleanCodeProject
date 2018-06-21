@@ -75,10 +75,8 @@ namespace FindAndBook.Services
             }
         }
 
-        public void Delete(Guid id)
+        public void Delete(Booking booking)
         {
-            var booking = this.repository.GetById(id);
-
             this.repository.Delete(booking);
             this.unitOfWork.Commit();
         }

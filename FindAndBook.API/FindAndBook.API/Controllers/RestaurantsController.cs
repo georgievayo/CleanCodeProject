@@ -91,6 +91,7 @@ namespace FindAndBook.API.Controllers
         }
 
         [HttpGet]
+        [Route("api/restaurants")]
         public IHttpActionResult Search([FromUri] SearchCriteria criteria)
         {
             if (criteria.SearchBy == null && criteria.Pattern == null)
