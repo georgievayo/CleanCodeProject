@@ -9,18 +9,30 @@ namespace FindAndBook.API.Mapper
     {
         public BookingModel MapBooking(Booking booking)
         {
-            var rest = booking.Restaurant.Name;
-            var user = booking.User.FirstName + " " + booking.User.LastName;
-
             var mappedBooking = new BookingModel()
             {
+                RestaurantId = booking.RestaurantId,
                 Restaurant = booking.Restaurant.Name,
+                UserId = booking.UserId,
                 User = booking.User.FirstName + " " + booking.User.LastName,
                 Time = booking.DateTime,
                 PeopleCount = booking.PeopleCount
             };
 
             return mappedBooking;
+        }
+
+        public List<BookingModel> MapBookingsCollection(IQueryable<Booking> bookings)
+        {
+            var mappedBookingsCollection = new List<BookingModel>();
+
+            foreach (var booking in bookings)
+            {
+                var mappedBooking = this.MapBooking(booking);
+                mappedBookingsCollection.Add(mappedBooking);
+            }
+
+            return mappedBookingsCollection;
         }
 
         public RestaurantModel MapRestaurant(Restaurant restaurant)

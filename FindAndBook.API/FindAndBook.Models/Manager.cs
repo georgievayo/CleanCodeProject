@@ -6,8 +6,9 @@ namespace FindAndBook.Models
     {
         public Manager() : base()
         {
-
+            this.Role = Role.Manager;
         }
+
         public Manager(string username, string password, string email,
             string firstName, string lastName, string phoneNumber) 
             : base(username, password, email, firstName, lastName, phoneNumber)

@@ -91,5 +91,29 @@ namespace FindAndBook.API.Controllers
                 return BadRequest("Booking Id is incorrect.");
             }
         }
+
+        [HttpGet]
+        [Route("api/restaurants/{id}/bookings")]
+        public IHttpActionResult GetAll([FromUri] string id)
+        {
+            if (String.IsNullOrEmpty(id))
+            {
+                return BadRequest("Restaurant id is required.");
+            }
+
+            try
+            {
+                var restaurantId = Guid.Parse(id);
+
+                var bookings = this.bookingsService.GetAllOfRestaurant(restaurantId);
+                var response = this.mapper.MapBookingsCollection(bookings);
+
+                return Ok(response);
+            }
+            catch (FormatException)
+            {
+                return BadRequest("Restaurant Id is incorrect.");
+            }
+        }
     }
 }

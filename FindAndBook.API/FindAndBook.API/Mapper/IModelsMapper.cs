@@ -11,6 +11,8 @@ namespace FindAndBook.API.Mapper
 
         RestaurantModel MapRestaurant(Restaurant restaurant);
 
+        List<BookingModel> MapBookingsCollection(IQueryable<Booking> bookings);
+
         BookingModel MapBooking(Booking booking);
     }
 }

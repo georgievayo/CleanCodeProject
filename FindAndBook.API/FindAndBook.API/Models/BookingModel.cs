@@ -10,7 +10,11 @@ namespace FindAndBook.API.Models
 
         public string Restaurant { get; set; }
 
+        public Guid RestaurantId { get; set; }
+
         public string User { get; set; }
+
+        public Guid UserId { get; set; }
 
         [Required]
         public int PeopleCount { get; set; }
