@@ -12,9 +12,7 @@ namespace FindAndBook.API.Mapper
             var mappedBooking = new BookingModel()
             {
                 RestaurantId = booking.RestaurantId,
-                Restaurant = booking.Restaurant.Name,
                 UserId = booking.UserId,
-                User = booking.User.FirstName + " " + booking.User.LastName,
                 Time = booking.DateTime,
                 PeopleCount = booking.PeopleCount
             };

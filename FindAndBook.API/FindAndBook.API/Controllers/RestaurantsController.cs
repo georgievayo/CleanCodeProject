@@ -3,8 +3,6 @@ using FindAndBook.API.Models;
 using FindAndBook.Providers.Contracts;
 using FindAndBook.Services.Contracts;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Web.Http;
 
 namespace FindAndBook.API.Controllers
@@ -96,40 +94,18 @@ namespace FindAndBook.API.Controllers
         {
             if (criteria.SearchBy == null && criteria.Pattern == null)
             {
-                this.restaurantsService.GetAll();
+                var allRestaurants = this.restaurantsService.GetAll();
+                var response = this.mapper.MapRestaurantsCollection(allRestaurants);
 
-                return Ok("All restaurants");
+                return Ok(response);
             }
 
             try
             {
                 var foundRestaurants = this.restaurantsService
-                    .FindBy(criteria.SearchBy, criteria.Pattern)
-                    .ToList();
+                    .FindBy(criteria.SearchBy, criteria.Pattern);
 
-                var response = new
-                {
-                    Restaurants = new List<RestaurantModel>()
-                };
-
-                foreach (var restaurant in foundRestaurants)
-                {
-                    var mappedRestaurant = new RestaurantModel()
-                    {
-                        Id = restaurant.Id,
-                        Name = restaurant.Name,
-                        Details = restaurant.Details,
-                        Contact = restaurant.Contact,
-                        WeekendHours = restaurant.WeekendHours,
-                        WeekdayHours = restaurant.WeekdayHours,
-                        Address = restaurant.Address,
-                        AverageBill = restaurant.AverageBill,
-                        Manager = restaurant.Manager.FirstName + " " + restaurant.Manager.LastName
-                    };
-
-
-                    response.Restaurants.Add(mappedRestaurant);
-                }
+                var response = this.mapper.MapRestaurantsCollection(foundRestaurants);                
 
                 return Ok(response);
             }

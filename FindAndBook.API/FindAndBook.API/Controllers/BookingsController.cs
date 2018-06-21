@@ -1,8 +1,10 @@
 ﻿using FindAndBook.API.Mapper;
 using FindAndBook.API.Models;
+using FindAndBook.Models;
 using FindAndBook.Providers.Contracts;
 using FindAndBook.Services.Contracts;
 using System;
+using System.Linq;
 using System.Web.Http;
 
 namespace FindAndBook.API.Controllers
@@ -94,7 +96,7 @@ namespace FindAndBook.API.Controllers
 
         [HttpGet]
         [Route("api/restaurants/{id}/bookings")]
-        public IHttpActionResult GetAll([FromUri] string id)
+        public IHttpActionResult GetAll([FromUri] string id, [FromUri] BookingCriteria criteria)
         {
             if (String.IsNullOrEmpty(id))
             {
@@ -104,8 +106,18 @@ namespace FindAndBook.API.Controllers
             try
             {
                 var restaurantId = Guid.Parse(id);
+                IQueryable<Booking> bookings = null;
 
-                var bookings = this.bookingsService.GetAllOfRestaurant(restaurantId);
+                if(criteria.Time == null)
+                {
+                    bookings = this.bookingsService.GetAllOfRestaurant(restaurantId);
+                }
+                else
+                {
+                    var time = (DateTime)criteria.Time;
+                    bookings = this.bookingsService.GetAllOn(time, restaurantId);
+                }
+
                 var response = this.mapper.MapBookingsCollection(bookings);
 
                 return Ok(response);

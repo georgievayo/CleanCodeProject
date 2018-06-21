@@ -8,11 +8,7 @@ namespace FindAndBook.API.Models
         [Required]
         public DateTime Time { get; set; }
 
-        public string Restaurant { get; set; }
-
         public Guid RestaurantId { get; set; }
-
-        public string User { get; set; }
 
         public Guid UserId { get; set; }
 
