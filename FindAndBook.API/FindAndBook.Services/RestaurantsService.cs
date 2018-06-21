@@ -10,6 +10,9 @@ namespace FindAndBook.Services
 {
     public class RestaurantsService : IRestaurantsService
     {
+        private const string NAME_SEARCH_OPTION = "name";
+        private const string ADDRESS_SEARCH_OPTION = "address";
+
         private readonly IRepository<Restaurant> repository;
         private readonly IUnitOfWork unitOfWork;
         private readonly IRestaurantsFactory factory;
@@ -22,7 +25,7 @@ namespace FindAndBook.Services
         }
 
         public Restaurant Create(string name, string contact, string weekendHours,
-            string weekdaayHours, string photo, string details, int averageBill, Guid managerId, string address)
+            string weekdaayHours, string photo, string details, int? averageBill, Guid managerId, string address)
         {
             var restaurant = this.factory.Create(name, contact, weekendHours, 
                 weekdaayHours, photo, details, averageBill, managerId, address);
@@ -94,11 +97,11 @@ namespace FindAndBook.Services
 
         public IQueryable<Restaurant> FindBy(string searchBy, string pattern)
         {
-            if (searchBy == "Name")
+            if (searchBy.ToLower() == NAME_SEARCH_OPTION)
             {
                 return this.FindByName(pattern);
             }
-            else if (searchBy == "Address")
+            else if (searchBy.ToLower() == ADDRESS_SEARCH_OPTION)
             {
                 return this.FindByAddress(pattern);
             }

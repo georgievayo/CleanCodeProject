@@ -1,8 +1,9 @@
 ﻿using FindAndBook.API.Models;
 using FindAndBook.Providers.Contracts;
 using FindAndBook.Services.Contracts;
-using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Web.Http;
 
 namespace FindAndBook.API.Controllers
@@ -23,14 +24,14 @@ namespace FindAndBook.API.Controllers
         [HttpPost]
         public IHttpActionResult CreateRestaurant(RestaurantModel model)
         {
-            if(model == null || !ModelState.IsValid)
+            if (model == null || !ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
             var currentUserId = this.authProvider.CurrentUserID;
 
-            var createdRestaurant = this.restaurantsService.Create(model.Name, model.Contact, model.WeekendHours, 
+            var createdRestaurant = this.restaurantsService.Create(model.Name, model.Contact, model.WeekendHours,
                 model.WeekdayHours, model.PhotoUrl, model.Details, model.AverageBill, Guid.Parse(currentUserId), model.Address);
 
             var response = new
@@ -47,7 +48,7 @@ namespace FindAndBook.API.Controllers
         [Route("{id}")]
         public IHttpActionResult GetRestaurantDetails([FromUri]string id)
         {
-            if(id == null || String.IsNullOrEmpty(id))
+            if (id == null || String.IsNullOrEmpty(id))
             {
                 return BadRequest();
             }
@@ -57,13 +58,13 @@ namespace FindAndBook.API.Controllers
                 var restaurantId = Guid.Parse(id);
                 var restaurant = this.restaurantsService.GetById(restaurantId);
 
-                if(restaurant == null)
+                if (restaurant == null)
                 {
                     return NotFound();
                 }
                 else
                 {
-                    var response = new
+                    var response = new RestaurantModel()
                     {
                         Id = restaurant.Id,
                         Name = restaurant.Name,
@@ -79,9 +80,57 @@ namespace FindAndBook.API.Controllers
                     return Ok(response);
                 }
             }
-            catch(FormatException)
+            catch (FormatException)
             {
                 return BadRequest("Restaurant id is incorrect.");
+            }
+        }
+
+        [HttpGet]
+        public IHttpActionResult Search([FromUri] SearchCriteria criteria)
+        {
+            if (criteria.SearchBy == null && criteria.Pattern == null)
+            {
+                this.restaurantsService.GetAll();
+
+                return Ok("All restaurants");
+            }
+
+            try
+            {
+                var foundRestaurants = this.restaurantsService
+                    .FindBy(criteria.SearchBy, criteria.Pattern)
+                    .ToList();
+
+                var response = new
+                {
+                    Restaurants = new List<RestaurantModel>()
+                };
+
+                foreach (var restaurant in foundRestaurants)
+                {
+                    var mappedRestaurant = new RestaurantModel()
+                    {
+                        Id = restaurant.Id,
+                        Name = restaurant.Name,
+                        Details = restaurant.Details,
+                        Contact = restaurant.Contact,
+                        WeekendHours = restaurant.WeekendHours,
+                        WeekdayHours = restaurant.WeekdayHours,
+                        Address = restaurant.Address,
+                        AverageBill = restaurant.AverageBill,
+                        Manager = restaurant.Manager.FirstName + " " + restaurant.Manager.LastName
+                    };
+
+
+                    response.Restaurants.Add(mappedRestaurant);
+                }
+
+                return Ok(response);
+            }
+            catch (FormatException)
+            {
+                return BadRequest("Average Bill must be a valid number.");
             }
         }
 
