@@ -68,7 +68,7 @@ namespace FindAndBook.Services
             }
             else
             {
-                this.usersFactory.Create(username, password, email, firstName, lastName, phoneNumber);
+                user = this.usersFactory.Create(username, password, email, firstName, lastName, phoneNumber);
             }
 
             this.repository.Add(user);
