@@ -27,5 +27,7 @@ namespace FindAndBook.Services.Contracts
         IQueryable<Restaurant> FindBy(string searchBy, string pattern);
 
         bool Delete(Guid id);
+
+        int GetMaxPeopleCountOf(Guid restaurantId);
     }
 }

@@ -1,10 +1,7 @@
 ﻿using FindAndBook.API.Models;
 using FindAndBook.Models;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace FindAndBook.API.Mapper
 {
@@ -14,6 +11,6 @@ namespace FindAndBook.API.Mapper
 
         RestaurantModel MapRestaurant(Restaurant restaurant);
 
-
+        BookingModel MapBooking(Booking booking);
     }
 }

@@ -7,6 +7,22 @@ namespace FindAndBook.API.Mapper
 {
     public class ModelsMapper : IModelsMapper
     {
+        public BookingModel MapBooking(Booking booking)
+        {
+            var rest = booking.Restaurant.Name;
+            var user = booking.User.FirstName + " " + booking.User.LastName;
+
+            var mappedBooking = new BookingModel()
+            {
+                Restaurant = booking.Restaurant.Name,
+                User = booking.User.FirstName + " " + booking.User.LastName,
+                Time = booking.DateTime,
+                PeopleCount = booking.PeopleCount
+            };
+
+            return mappedBooking;
+        }
+
         public RestaurantModel MapRestaurant(Restaurant restaurant)
         {
             var mappedRestaurant = new RestaurantModel()

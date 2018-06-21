@@ -14,6 +14,8 @@ namespace FindAndBook.Services.Contracts
 
         Booking Create(Guid restaurantId, Guid userId, DateTime dateTime, int peopleCount);
 
+        Booking BookTable(Guid restaurantId, Guid userId, DateTime dateTime, int peopleCount);
+
         void Delete(Guid id);
     }
 }

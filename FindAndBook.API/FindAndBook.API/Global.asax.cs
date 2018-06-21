@@ -74,6 +74,9 @@ namespace FindAndBook.API
             builder.RegisterType<TokenValidationHandler>()
                 .AsWebApiActionFilterFor<RestaurantsController>()
                 .InstancePerRequest();
+            builder.RegisterType<TokenValidationHandler>()
+                .AsWebApiActionFilterFor<BookingsController>()
+                .InstancePerRequest();
 
             builder.RegisterApiControllers(Assembly.GetExecutingAssembly());    
 

@@ -3,7 +3,6 @@ using FindAndBook.Factories;
 using FindAndBook.Models;
 using FindAndBook.Services.Contracts;
 using System;
-using System.Data.Entity;
 using System.Linq;
 
 namespace FindAndBook.Services
@@ -16,11 +15,15 @@ namespace FindAndBook.Services
 
         private readonly IBookingsFactory factory;
 
-        public BookingsService(IRepository<Booking> repository, IUnitOfWork unitOfWork, IBookingsFactory factory)
+        private readonly IRestaurantsService restaurantsService;
+
+        public BookingsService(IRepository<Booking> repository, IUnitOfWork unitOfWork, 
+            IBookingsFactory factory, IRestaurantsService restaurantsService)
         {
             this.repository = repository;
             this.unitOfWork = unitOfWork;
             this.factory = factory;
+            this.restaurantsService = restaurantsService;
         }
 
         public IQueryable<Booking> GetAllOfRestaurant(Guid restaurantId)
@@ -50,6 +53,26 @@ namespace FindAndBook.Services
             this.unitOfWork.Commit();
 
             return booking;
+        }
+
+        public Booking BookTable(Guid restaurantId, Guid userId, DateTime dateTime, int peopleCount)
+        {
+            var reserved = this.GetAllOn(dateTime, restaurantId)
+                .Select(b => b.PeopleCount)
+                .ToList()
+                .Sum();
+
+            var maxPeopleCount = this.restaurantsService.GetMaxPeopleCountOf(restaurantId);
+            if(maxPeopleCount - reserved < peopleCount)
+            {
+                return null;
+            }
+            else
+            {
+                var booking = this.Create(restaurantId, userId, dateTime, peopleCount);
+
+                return booking;
+            }
         }
 
         public void Delete(Guid id)

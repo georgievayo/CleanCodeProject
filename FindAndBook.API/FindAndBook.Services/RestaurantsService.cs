@@ -124,5 +124,18 @@ namespace FindAndBook.Services
 
             return true;
         }
+
+        public int GetMaxPeopleCountOf(Guid restaurantId)
+        {
+            var restaurant = this.GetById(restaurantId);
+            if(restaurant == null)
+            {
+                return 0;
+            }
+            else
+            {
+                return restaurant.MaxPeopleCount;
+            }
+        }
     }
 }
