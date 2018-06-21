@@ -14,14 +14,14 @@ namespace FindAndBook.Tests.Services
     [TestFixture]
     public class BookingsServiceTests
     {
+        private Mock<IRepository<Booking>> repositoryMock;
+        private Mock<IUnitOfWork> unitOfWorkMock;
+        private Mock<IBookingsFactory> factoryMock;
+        private Mock<IRestaurantsService> restaurantsServiceMock;
+
         [TestCase(10)]
         public void MethodCreateShould_CallFactoryMethodCreateBooking(int peopleCount)
         {
-            var repositoryMock = new Mock<IRepository<Booking>>();
-            var unitOfWorkMock = new Mock<IUnitOfWork>();
-            var factoryMock = new Mock<IBookingsFactory>();
-            var restaurantsServiceMock = new Mock<IRestaurantsService>();
-
             var service = new BookingsService(repositoryMock.Object,
                 unitOfWorkMock.Object, factoryMock.Object, restaurantsServiceMock.Object);
 
@@ -37,11 +37,6 @@ namespace FindAndBook.Tests.Services
         [TestCase(5)]
         public void MethodCreateShould_CallRepositoryMethodAdd(int peopleCount)
         {
-            var repositoryMock = new Mock<IRepository<Booking>>();
-            var unitOfWorkMock = new Mock<IUnitOfWork>();
-            var factoryMock = new Mock<IBookingsFactory>();
-            var restaurantsServiceMock = new Mock<IRestaurantsService>();
-            
             var service = new BookingsService(repositoryMock.Object,
                 unitOfWorkMock.Object, factoryMock.Object, restaurantsServiceMock.Object);
 
@@ -67,12 +62,7 @@ namespace FindAndBook.Tests.Services
 
         [Test]
         public void MethodGetAllOnShould_CallRepositoryMethodAll()
-        {
-            var repositoryMock = new Mock<IRepository<Booking>>();
-            var unitOfWorkMock = new Mock<IUnitOfWork>();
-            var factoryMock = new Mock<IBookingsFactory>();
-            var restaurantsServiceMock = new Mock<IRestaurantsService>();
-            
+        {          
             var service = new BookingsService(repositoryMock.Object,
                 unitOfWorkMock.Object, factoryMock.Object, restaurantsServiceMock.Object);
             var restaurantId = Guid.NewGuid();
@@ -86,11 +76,6 @@ namespace FindAndBook.Tests.Services
         [Test]
         public void MethodGetAllOnShould_ReturnCorrectResult()
         {
-            var repositoryMock = new Mock<IRepository<Booking>>();
-            var unitOfWorkMock = new Mock<IUnitOfWork>();
-            var factoryMock = new Mock<IBookingsFactory>();
-            var restaurantsServiceMock = new Mock<IRestaurantsService>();
-
             var restaurantId = Guid.NewGuid();
             var dateTime = DateTime.Now;
             var booking = new Booking() { RestaurantId = restaurantId, DateTime = dateTime };
@@ -107,12 +92,7 @@ namespace FindAndBook.Tests.Services
 
         [Test]
         public void MethodGetAllOfRestaurantShould_CallRepositoryMethodAll()
-        {
-            var repositoryMock = new Mock<IRepository<Booking>>();
-            var unitOfWorkMock = new Mock<IUnitOfWork>();
-            var factoryMock = new Mock<IBookingsFactory>();
-            var restaurantsServiceMock = new Mock<IRestaurantsService>();
-            
+        {          
             var service = new BookingsService(repositoryMock.Object,
                 unitOfWorkMock.Object, factoryMock.Object, restaurantsServiceMock.Object);
             var restaurantId = Guid.NewGuid();
@@ -125,11 +105,6 @@ namespace FindAndBook.Tests.Services
         [Test]
         public void MethodGetAllOfRestaurantShould_ReturnCorrectResult()
         {
-            var repositoryMock = new Mock<IRepository<Booking>>();
-            var unitOfWorkMock = new Mock<IUnitOfWork>();
-            var factoryMock = new Mock<IBookingsFactory>();
-            var restaurantsServiceMock = new Mock<IRestaurantsService>();
-
             var restaurantId = Guid.NewGuid();
             var booking = new Booking() { RestaurantId = restaurantId };
             var list = new List<Booking>() { booking };
@@ -146,11 +121,6 @@ namespace FindAndBook.Tests.Services
         [Test]
         public void MethodGetByIdShould_CallRepositoryMethodGetById()
         {
-            var repositoryMock = new Mock<IRepository<Booking>>();
-            var unitOfWorkMock = new Mock<IUnitOfWork>();
-            var factoryMock = new Mock<IBookingsFactory>();
-            var restaurantsServiceMock = new Mock<IRestaurantsService>();
-
             var id = Guid.NewGuid();
             var service = new BookingsService(repositoryMock.Object,
                 unitOfWorkMock.Object, factoryMock.Object, restaurantsServiceMock.Object);
@@ -163,11 +133,6 @@ namespace FindAndBook.Tests.Services
         [Test]
         public void MethodGetByIdShould_ReturnCorrectValue()
         {
-            var repositoryMock = new Mock<IRepository<Booking>>();
-            var unitOfWorkMock = new Mock<IUnitOfWork>();
-            var factoryMock = new Mock<IBookingsFactory>();
-            var restaurantsServiceMock = new Mock<IRestaurantsService>();
-
             var id = Guid.NewGuid();
             var booking = new Booking() { Id = id };
             repositoryMock.Setup(r => r.GetById(id)).Returns(booking);
@@ -183,13 +148,7 @@ namespace FindAndBook.Tests.Services
         [Test]
         public void MethodDeleteShould_CallRepositoryMethodDelete()
         {
-            var id = Guid.NewGuid();
-            var repositoryMock = new Mock<IRepository<Booking>>();
-            var unitOfWorkMock = new Mock<IUnitOfWork>();
-            var factoryMock = new Mock<IBookingsFactory>();
-            var restaurantsServiceMock = new Mock<IRestaurantsService>();
-
-            var booking = new Booking() { Id = id };
+            var booking = new Booking() { Id = Guid.NewGuid() };
 
             var service = new BookingsService(repositoryMock.Object,
                 unitOfWorkMock.Object, factoryMock.Object, restaurantsServiceMock.Object);
@@ -202,13 +161,7 @@ namespace FindAndBook.Tests.Services
         [Test]
         public void MethodDeleteShould_CallUnitOfWorkMethodCommit()
         {
-            var id = Guid.NewGuid();
-            var repositoryMock = new Mock<IRepository<Booking>>();
-            var unitOfWorkMock = new Mock<IUnitOfWork>();
-            var factoryMock = new Mock<IBookingsFactory>();
-            var restaurantsServiceMock = new Mock<IRestaurantsService>();
-
-            var booking = new Booking() { Id = id };
+            var booking = new Booking() { Id = Guid.NewGuid() };
 
             var service = new BookingsService(repositoryMock.Object,
                 unitOfWorkMock.Object, factoryMock.Object, restaurantsServiceMock.Object);
@@ -216,6 +169,15 @@ namespace FindAndBook.Tests.Services
             service.Delete(booking);
 
             unitOfWorkMock.Verify(r => r.Commit(), Times.Once);
+        }
+
+        [SetUp]
+        public void SetUp()
+        {
+            repositoryMock = new Mock<IRepository<Booking>>();
+            unitOfWorkMock = new Mock<IUnitOfWork>();
+            factoryMock = new Mock<IBookingsFactory>();
+            restaurantsServiceMock = new Mock<IRestaurantsService>();
         }
     }
 }

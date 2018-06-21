@@ -62,7 +62,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Data\Fake\FakeRepository.cs" />
+    <Compile Include="API\UsersControllerTests.cs" />
+    <Compile Include="Data\Fake\FakeEntity.cs" />
     <Compile Include="Data\RepositoryTests.cs" />
     <Compile Include="Data\UnitOfWorkTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

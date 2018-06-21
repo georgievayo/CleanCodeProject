@@ -13,18 +13,17 @@ namespace FindAndBook.Tests.Services
     [TestFixture]
     public class RestaurantsServiceTests
     {
+        private Mock<IRepository<Restaurant>> repositoryMock;
+        private Mock<IUnitOfWork> unitOfWorkMock;
+        private Mock<IRestaurantsFactory> factoryMock;
+        private Guid managerId;
+
         [TestCase("Rest", "0877142574", "09:00 - 12:00", "09:00 - 12:00", "some photo",
             "some details", 12, "Sofia", 58)]
         public void MethodCreateShould_CallFactoryMethodCreaterestaurant(string name, string contact,
             string weekendHours, string weekdaayHours, string photo, string details, int averageBill,
             string address, int maxPeopleCount)
         {
-            var repositoryMock = new Mock<IRepository<Restaurant>>();
-            var unitOfWorkMock = new Mock<IUnitOfWork>();
-            var factoryMock = new Mock<IRestaurantsFactory>();
-
-            var managerId = Guid.NewGuid();
-
             var service = new RestaurantsService(repositoryMock.Object,
                 unitOfWorkMock.Object, factoryMock.Object);
 
@@ -41,12 +40,6 @@ namespace FindAndBook.Tests.Services
             string weekendHours, string weekdaayHours, string photo, string details, int averageBill,
             string address, int maxPeopleCount)
         {
-            var repositoryMock = new Mock<IRepository<Restaurant>>();
-            var unitOfWorkMock = new Mock<IUnitOfWork>();
-            var factoryMock = new Mock<IRestaurantsFactory>();
-
-            var managerId = Guid.NewGuid();
-
             var service = new RestaurantsService(repositoryMock.Object,
                 unitOfWorkMock.Object, factoryMock.Object);
 
@@ -77,15 +70,6 @@ namespace FindAndBook.Tests.Services
             string weekendHours, string weekdaayHours, string photo, string details, int averageBill,
             string address, int maxPeopleCount)
         {
-            var repositoryMock = new Mock<IRepository<Restaurant>>();
-            var unitOfWorkMock = new Mock<IUnitOfWork>();
-            var factoryMock = new Mock<IRestaurantsFactory>();
-
-            var service = new RestaurantsService(repositoryMock.Object,
-                unitOfWorkMock.Object, factoryMock.Object);
-
-            var managerId = Guid.NewGuid();
-
             var restaurant = new Restaurant()
             {
                 ManagerId = managerId,
@@ -102,6 +86,9 @@ namespace FindAndBook.Tests.Services
                     details, averageBill, managerId, address,maxPeopleCount))
                 .Returns(restaurant);
 
+            var service = new RestaurantsService(repositoryMock.Object,
+                unitOfWorkMock.Object, factoryMock.Object);
+
             service.Create(name, contact, weekendHours, weekdaayHours, photo,
                 details, averageBill, managerId, address, maxPeopleCount);
 
@@ -114,15 +101,6 @@ namespace FindAndBook.Tests.Services
             string weekendHours, string weekdaayHours, string details, int averageBill,
             string address, int maxPeopleCount)
         {
-            var repositoryMock = new Mock<IRepository<Restaurant>>();
-            var unitOfWorkMock = new Mock<IUnitOfWork>();
-            var factoryMock = new Mock<IRestaurantsFactory>();
-
-            var managerId = Guid.NewGuid();
-
-            var service = new RestaurantsService(repositoryMock.Object,
-                unitOfWorkMock.Object, factoryMock.Object);
-
             var restaurant = new Restaurant()
             {
                 ManagerId = managerId,
@@ -139,6 +117,9 @@ namespace FindAndBook.Tests.Services
                     details, averageBill, managerId, address, maxPeopleCount))
                 .Returns(restaurant);
 
+            var service = new RestaurantsService(repositoryMock.Object,
+                unitOfWorkMock.Object, factoryMock.Object);
+
             var result = service.Create(name, contact, weekendHours, weekdaayHours, photo,
                 details, averageBill, managerId, address, maxPeopleCount);
 
@@ -149,13 +130,11 @@ namespace FindAndBook.Tests.Services
         public void MethodEditShould_CallRepositoryMethodGetById(string contact, string details,
             string photoUrl, string weekendHours, string weekdaayHours, int averageBill, int maxPeopleCount)
         {
-            var repositoryMock = new Mock<IRepository<Restaurant>>();
-            var unitOfWorkMock = new Mock<IUnitOfWork>();
-            var factoryMock = new Mock<IRestaurantsFactory>();
-
             var service = new RestaurantsService(repositoryMock.Object,
                 unitOfWorkMock.Object, factoryMock.Object);
+
             var id = Guid.NewGuid();
+
             service.Edit(id, contact, details, photoUrl, weekdaayHours, weekendHours, averageBill, maxPeopleCount);
 
             repositoryMock.Verify(r => r.GetById(id), Times.Once);
@@ -165,13 +144,10 @@ namespace FindAndBook.Tests.Services
         public void EditPlaceShould_ReturnNull_WhenPlaceWasNotFound(string contact, string details,
             string photoUrl, string weekendHours, string weekdaayHours, int averageBill, int maxPeopleCount)
         {
-            var repositoryMock = new Mock<IRepository<Restaurant>>();
-            var unitOfWorkMock = new Mock<IUnitOfWork>();
-            var factoryMock = new Mock<IRestaurantsFactory>();
-
             var service = new RestaurantsService(repositoryMock.Object,
                 unitOfWorkMock.Object, factoryMock.Object);
             var id = Guid.NewGuid();
+
             repositoryMock.Setup(r => r.GetById(id)).Returns((Restaurant)null);
 
             var result = service.Edit(id, contact, details, photoUrl, weekdaayHours, weekendHours, averageBill, maxPeopleCount);
@@ -183,10 +159,6 @@ namespace FindAndBook.Tests.Services
         public void EditPlaceShould_CallRepositoryMethodUpdate(string contact, string details,
             string photoUrl, string weekendHours, string weekdaayHours, int averageBill, int maxPeopleCount)
         {
-            var repositoryMock = new Mock<IRepository<Restaurant>>();
-            var unitOfWorkMock = new Mock<IUnitOfWork>();
-            var factoryMock = new Mock<IRestaurantsFactory>();
-
             var service = new RestaurantsService(repositoryMock.Object,
                 unitOfWorkMock.Object, factoryMock.Object);
             var id = Guid.NewGuid();
@@ -199,6 +171,7 @@ namespace FindAndBook.Tests.Services
                 Details = "details",
                 AverageBill = 0,
             };
+
             repositoryMock.Setup(r => r.GetById(id)).Returns(place);
 
             var edittedPlace = place;
@@ -219,10 +192,6 @@ namespace FindAndBook.Tests.Services
         public void EditPlaceShould_CallUnitOfWorkMethodCommit(string contact, string details,
             string photoUrl, string weekendHours, string weekdaayHours, int averageBill, int maxPeopleCount)
         {
-            var repositoryMock = new Mock<IRepository<Restaurant>>();
-            var unitOfWorkMock = new Mock<IUnitOfWork>();
-            var factoryMock = new Mock<IRestaurantsFactory>();
-
             var service = new RestaurantsService(repositoryMock.Object,
                 unitOfWorkMock.Object, factoryMock.Object);
             var id = Guid.NewGuid();
@@ -246,10 +215,6 @@ namespace FindAndBook.Tests.Services
         public void EditPlaceShould_ReturnCorrectResult(string contact, string details,
             string photoUrl, string weekendHours, string weekdaayHours, int averageBill, int maxPeopleCount)
         {
-            var repositoryMock = new Mock<IRepository<Restaurant>>();
-            var unitOfWorkMock = new Mock<IUnitOfWork>();
-            var factoryMock = new Mock<IRestaurantsFactory>();
-
             var service = new RestaurantsService(repositoryMock.Object,
                 unitOfWorkMock.Object, factoryMock.Object);
             var id = Guid.NewGuid();
@@ -283,6 +248,15 @@ namespace FindAndBook.Tests.Services
             Assert.AreEqual(weekdaayHours, result.WeekdayHours);
             Assert.AreEqual(weekendHours, result.WeekendHours);
             Assert.AreEqual(averageBill, result.AverageBill);
+        }
+
+        [SetUp]
+        public void SetUp()
+        {
+            repositoryMock = new Mock<IRepository<Restaurant>>();
+            unitOfWorkMock = new Mock<IUnitOfWork>();
+            factoryMock = new Mock<IRestaurantsFactory>();
+            managerId = Guid.NewGuid();
         }
     }
 }

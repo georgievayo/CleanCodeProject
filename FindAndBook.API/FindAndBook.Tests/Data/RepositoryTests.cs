@@ -12,14 +12,13 @@ namespace FindAndBook.Tests.Data
     [TestFixture]
     public class RepositoryTests
     {
+        private Mock<IDbContext> dbContextMock;
+        private Mock<FakeEntity> entity;
+
         [Test]
         public void MathodAddShould_CallDbContextMethodSetAdded()
         {
-            var dbContextMock = new Mock<IDbContext>();
-
-            var repository = new Repository<FakeRepository>(dbContextMock.Object);
-
-            var entity = new Mock<FakeRepository>();
+            var repository = new Repository<FakeEntity>(dbContextMock.Object);
 
             repository.Add(entity.Object);
 
@@ -31,46 +30,39 @@ namespace FindAndBook.Tests.Data
         {
             var data = this.GetData();
 
-            var mockedSet = new Mock<IDbSet<FakeRepository>>();
+            var mockedSet = new Mock<IDbSet<FakeEntity>>();
             mockedSet.Setup(m => m.Provider).Returns(data.Provider);
             mockedSet.Setup(m => m.Expression).Returns(data.Expression);
             mockedSet.Setup(m => m.ElementType).Returns(data.ElementType);
             mockedSet.Setup(m => m.GetEnumerator()).Returns(data.GetEnumerator());
 
-            var mockedDbContext = new Mock<IDbContext>();
-            mockedDbContext.Setup(x => x.DbSet<FakeRepository>()).Returns(mockedSet.Object);
+            dbContextMock.Setup(x => x.DbSet<FakeEntity>()).Returns(mockedSet.Object);
 
-            var repository = new Repository<FakeRepository>(mockedDbContext.Object);
+            var repository = new Repository<FakeEntity>(dbContextMock.Object);
 
             var result = repository.All;
 
-            mockedDbContext.Verify(db => db.DbSet<FakeRepository>(), Times.Once);
+            dbContextMock.Verify(db => db.DbSet<FakeEntity>(), Times.Once);
         }
 
         [Test]
         public void DeleteShould_CallDbContextSetDeleted()
         {
-            var mockedDbContext = new Mock<IDbContext>();
-
-            var repository = new Repository<FakeRepository>(mockedDbContext.Object);
-
-            var entity = new Mock<FakeRepository>();
+            var repository = new Repository<FakeEntity>(dbContextMock.Object);
 
             repository.Delete(entity.Object);
 
-            mockedDbContext.Verify(c => c.SetDeleted(entity.Object), Times.Once);
+            dbContextMock.Verify(c => c.SetDeleted(entity.Object), Times.Once);
         }
 
         [TestCase(1)]
         [TestCase(432)]
         public void GetByIdShould_CallDbContextSetFind(int id)
         {
-            var mockedSet = new Mock<DbSet<FakeRepository>>();
+            var mockedSet = new Mock<DbSet<FakeEntity>>();
+            dbContextMock.Setup(x => x.DbSet<FakeEntity>()).Returns(mockedSet.Object);
 
-            var mockedDbContext = new Mock<IDbContext>();
-            mockedDbContext.Setup(x => x.DbSet<FakeRepository>()).Returns(mockedSet.Object);
-
-            var repository = new Repository<FakeRepository>(mockedDbContext.Object);
+            var repository = new Repository<FakeEntity>(dbContextMock.Object);
 
             repository.GetById(id);
 
@@ -81,43 +73,42 @@ namespace FindAndBook.Tests.Data
         [TestCase(432)]
         public void GetByIdShould_ReturnCorrectly(int id)
         {
-            var mockedResult = new Mock<FakeRepository>();
+            var mockedSet = new Mock<DbSet<FakeEntity>>();
+            mockedSet.Setup(s => s.Find(It.IsAny<object>())).Returns(entity.Object);
+            dbContextMock.Setup(x => x.DbSet<FakeEntity>()).Returns(mockedSet.Object);
 
-            var mockedSet = new Mock<DbSet<FakeRepository>>();
-            mockedSet.Setup(s => s.Find(It.IsAny<object>())).Returns(mockedResult.Object);
-
-            var mockedDbContext = new Mock<IDbContext>();
-            mockedDbContext.Setup(x => x.DbSet<FakeRepository>()).Returns(mockedSet.Object);
-
-            var repository = new Repository<FakeRepository>(mockedDbContext.Object);
+            var repository = new Repository<FakeEntity>(dbContextMock.Object);
 
             var result = repository.GetById(id);
 
-            Assert.AreSame(mockedResult.Object, result);
+            Assert.AreSame(entity.Object, result);
         }
 
         [Test]
         public void UpdateShould_CallDbContextSetUpdated()
         {
-            var mockedDbContext = new Mock<IDbContext>();
-
-            var repository = new Repository<FakeRepository>(mockedDbContext.Object);
-
-            var entity = new Mock<FakeRepository>();
+            var repository = new Repository<FakeEntity>(dbContextMock.Object);
 
             repository.Update(entity.Object);
 
-            mockedDbContext.Verify(c => c.SetUpdated(entity.Object), Times.Once);
+            dbContextMock.Verify(c => c.SetUpdated(entity.Object), Times.Once);
         }
 
-        private IQueryable<FakeRepository> GetData()
+        private IQueryable<FakeEntity> GetData()
         {
-            return new List<FakeRepository>
+            return new List<FakeEntity>
             {
-                new FakeRepository(),
-                new FakeRepository(),
-                new FakeRepository()
+                new FakeEntity(),
+                new FakeEntity(),
+                new FakeEntity()
             }.AsQueryable();
+        }
+
+        [SetUp]
+        public void SetUp()
+        {
+            dbContextMock = new Mock<IDbContext>();
+            entity = new Mock<FakeEntity>();
         }
     }
 }
