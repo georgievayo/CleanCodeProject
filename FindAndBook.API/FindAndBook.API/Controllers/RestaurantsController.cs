@@ -160,5 +160,36 @@ namespace FindAndBook.API.Controllers
             }
         }
 
+        [HttpDelete]
+        [Route("api/restaurants/{id}")]
+        public IHttpActionResult DeleteRestaurant([FromUri] string id)
+        {
+            try
+            {
+                var restaurantId = Guid.Parse(id);
+                var restaurant = this.restaurantsService.GetById(restaurantId);
+                if (restaurant == null)
+                {
+                    return NotFound();
+                }
+
+                var currentUserId = this.authProvider.CurrentUserID;
+
+                if (currentUserId == restaurant.ManagerId)
+                {
+                    this.restaurantsService.Delete(restaurantId);
+
+                    return Ok();
+                }
+                else
+                {
+                    return Content(System.Net.HttpStatusCode.Forbidden, "Only manager of this restaurant can delete it.");
+                }
+            }
+            catch (FormatException)
+            {
+                return BadRequest("Restaurant id is incorrect");
+            }
+        }
     }
 }
