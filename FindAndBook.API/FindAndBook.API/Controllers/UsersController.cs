@@ -2,7 +2,6 @@
 using FindAndBook.Providers.Contracts;
 using FindAndBook.Services.Contracts;
 using System;
-using System.Web;
 using System.Web.Http;
 
 namespace FindAndBook.API.Controllers
@@ -92,7 +91,7 @@ namespace FindAndBook.API.Controllers
             {
                 if (user.Id != currentUserId)
                 {
-                    return Content(System.Net.HttpStatusCode.Forbidden, "You cannot see this page.");
+                    return Content(System.Net.HttpStatusCode.Forbidden, "You can see only your profile.");
                 }
 
                 var response = new

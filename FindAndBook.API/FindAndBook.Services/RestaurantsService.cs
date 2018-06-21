@@ -58,13 +58,13 @@ namespace FindAndBook.Services
             var restaurant = this.repository.GetById(id);
             if (restaurant != null)
             {
-                restaurant.Contact = contact;
-                restaurant.Details = description;
-                restaurant.PhotoUrl = photoUrl;
-                restaurant.WeekdayHours = weekdayHours;
-                restaurant.WeekendHours = weekendHours;
-                restaurant.AverageBill = averageBill;
-                restaurant.MaxPeopleCount = maxPeopleCount;
+                restaurant.Contact = String.IsNullOrEmpty(contact) ? restaurant.Contact : contact;
+                restaurant.Details = String.IsNullOrEmpty(description) ? restaurant.Details : description;
+                restaurant.PhotoUrl = String.IsNullOrEmpty(photoUrl) ? restaurant.PhotoUrl : photoUrl;
+                restaurant.WeekdayHours = String.IsNullOrEmpty(weekdayHours) ? restaurant.WeekdayHours : weekdayHours;
+                restaurant.WeekendHours = String.IsNullOrEmpty(weekendHours) ? restaurant.WeekendHours : weekendHours;
+                restaurant.AverageBill = averageBill == null ? restaurant.AverageBill : averageBill;
+                restaurant.MaxPeopleCount = maxPeopleCount == 0 ? restaurant.MaxPeopleCount : maxPeopleCount;
 
                 this.repository.Update(restaurant);
                 this.unitOfWork.Commit();

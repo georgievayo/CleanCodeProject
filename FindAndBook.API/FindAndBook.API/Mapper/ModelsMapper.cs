@@ -18,7 +18,9 @@ namespace FindAndBook.API.Mapper
                 WeekendHours = restaurant.WeekendHours,
                 WeekdayHours = restaurant.WeekdayHours,
                 Address = restaurant.Address,
+                PhotoUrl = restaurant.PhotoUrl,
                 AverageBill = restaurant.AverageBill,
+                MaxPeopleCount = restaurant.MaxPeopleCount,
                 Manager = restaurant.Manager.FirstName + " " + restaurant.Manager.LastName
             };
 
