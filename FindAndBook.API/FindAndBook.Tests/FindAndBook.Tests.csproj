@@ -97,6 +97,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="API\BookingsControllerTests.cs" />
     <Compile Include="API\RestaurantsControllerTests.cs" />
     <Compile Include="API\UsersControllerTests.cs" />
     <Compile Include="Data\Fake\FakeEntity.cs" />
