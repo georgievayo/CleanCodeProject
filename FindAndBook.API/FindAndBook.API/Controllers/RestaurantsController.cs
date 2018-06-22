@@ -146,6 +146,11 @@ namespace FindAndBook.API.Controllers
         [Route("api/restaurants/{id}")]
         public IHttpActionResult EditRestaurant([FromUri] string id, RestaurantModel model)
         {
+            if (String.IsNullOrEmpty(id))
+            {
+                return BadRequest("Restaurant id is required.");
+            }
+
             if (model == null || !ModelState.IsValid)
             {
                 return BadRequest(ModelState);

@@ -391,6 +391,172 @@ namespace FindAndBook.Tests.API
             Assert.IsInstanceOf<OkNegotiatedContentResult<List<RestaurantModel>>>(result);
         }
 
+        [Test]
+        public void ActionEditRestaurantShould_ReturnBadRequest_WhenRestaurantIdIsNull()
+        {
+            var result = controller.EditRestaurant(null, null);
+
+            Assert.IsInstanceOf<BadRequestErrorMessageResult>(result);
+        }
+
+        [Test]
+        public void ActionEditRestaurantShould_ReturnBadRequest_WhenRestaurantIdIsEmpty()
+        {
+            var result = controller.EditRestaurant("", null);
+
+            Assert.IsInstanceOf<BadRequestErrorMessageResult>(result);
+        }
+
+        [Test]
+        public void ActionEditRestaurantShould_ReturnBadRequest_WhenModelIsNull()
+        {
+            var restaurantId = Guid.NewGuid().ToString();
+            var result = controller.EditRestaurant(restaurantId, null);
+
+            Assert.IsInstanceOf<InvalidModelStateResult>(result);
+        }
+
+        [Test]
+        public void ActionEditRestaurantShould_ReturnBadRequest_WhenModelIsNotValid()
+        {
+            var restaurantId = Guid.NewGuid().ToString();
+
+            controller.ModelState.AddModelError("Name", "Name is required.");
+            var model = new RestaurantModel();
+
+            var result = controller.EditRestaurant(restaurantId, model);
+
+            Assert.IsInstanceOf<InvalidModelStateResult>(result);
+        }
+
+        [Test]
+        public void ActionEditRestaurantShould_ReturnBadRequest_WhenPassedIdIsNotValid()
+        {
+            var id = "not-valid";
+            var model = new RestaurantModel();
+            var result = controller.EditRestaurant(id, model);
+
+            Assert.IsInstanceOf<BadRequestErrorMessageResult>(result);
+        }
+
+        [Test]
+        public void ActionEditRestaurantShould_CallServiceMethodGetById_WhenPassedIdIsValid()
+        {
+            var id = Guid.NewGuid();
+            var model = new RestaurantModel();
+
+            var result = controller.EditRestaurant(id.ToString(), model);
+
+            restaurantsServiceMock.Verify(s => s.GetById(id), Times.Once);
+        }
+
+        [Test]
+        public void ActionEditRestaurantShould_ReturnNotFound_WhenRestaurantWasNotFound()
+        {
+            var id = Guid.NewGuid();
+            var model = new RestaurantModel();
+
+            restaurantsServiceMock.Setup(s => s.GetById(id))
+                .Returns(() => null);
+
+            var result = controller.EditRestaurant(id.ToString(), model);
+
+            Assert.IsInstanceOf<NotFoundResult>(result);
+        }
+
+        [Test]
+        public void ActionEditRestaurantShould_GetCurrentUserId_WhenRestaurantWasFound()
+        {
+            var id = Guid.NewGuid();
+            var model = new RestaurantModel();
+
+            var result = controller.EditRestaurant(id.ToString(), model);
+
+            authProviderMock.Verify(ap => ap.CurrentUserID, Times.Once);
+        }
+
+        [Test]
+        public void ActionEditRestaurantShould_ReturnForbidden_WhenCurrentUserIsNotManagerOfRestaurant()
+        {
+            var id = Guid.NewGuid();
+            var model = new RestaurantModel();
+
+            authProviderMock.Setup(s => s.CurrentUserID)
+                .Returns(() => Guid.NewGuid());
+
+            var result = controller.EditRestaurant(id.ToString(), model);
+
+            Assert.IsInstanceOf<NegotiatedContentResult<string>>(result);
+        }
+
+        [Test]
+        public void ActionEditRestaurantShould_CallServiceMethodEdit_WhenCurrentUserIsManagerOfRestaurant()
+        {
+            var id = Guid.NewGuid();
+            var model = new RestaurantModel()
+            {
+                Name = "Restaurant",
+                Address = "test",
+                Contact = "test",
+                WeekdayHours = "09:00 - 22:00",
+                WeekendHours = "09:00 - 22:00",
+                PhotoUrl = "test",
+                MaxPeopleCount = 20,
+                AverageBill = 5,
+                Details = "test"
+            };
+
+            var result = controller.EditRestaurant(id.ToString(), model);
+
+            restaurantsServiceMock.Verify(s => s.Edit(id, model.Contact, model.Details, 
+                model.PhotoUrl, model.WeekdayHours, model.WeekendHours, model.AverageBill, 
+                model.MaxPeopleCount), Times.Once);
+        }
+
+        [Test]
+        public void ActionEditRestaurantShould_CallMapper_WhenRestaurantIsUpdated()
+        {
+            var id = Guid.NewGuid();
+            var model = new RestaurantModel()
+            {
+                Name = "Restaurant",
+                Address = "test",
+                Contact = "test",
+                WeekdayHours = "09:00 - 22:00",
+                WeekendHours = "09:00 - 22:00",
+                PhotoUrl = "test",
+                MaxPeopleCount = 20,
+                AverageBill = 5,
+                Details = "test"
+            };
+
+            var result = controller.EditRestaurant(id.ToString(), model);
+
+            mapperMock.Verify(m => m.MapRestaurant(restaurant));
+        }
+
+        [Test]
+        public void ActionEditRestaurantShould_ReturnOkWithUpdatedRestaurant_WhenRestaurantIsUpdated()
+        {
+            var id = Guid.NewGuid();
+            var model = new RestaurantModel()
+            {
+                Name = "Restaurant",
+                Address = "test",
+                Contact = "test",
+                WeekdayHours = "09:00 - 22:00",
+                WeekendHours = "09:00 - 22:00",
+                PhotoUrl = "test",
+                MaxPeopleCount = 20,
+                AverageBill = 5,
+                Details = "test"
+            };
+
+            var result = controller.EditRestaurant(id.ToString(), model);
+
+            Assert.IsInstanceOf<OkNegotiatedContentResult<RestaurantModel>>(result);
+        }
+
         [SetUp]
         public void SetUp()
         {
@@ -402,6 +568,7 @@ namespace FindAndBook.Tests.API
                 .Returns("Manager");
             authProviderMock.Setup(ap => ap.CurrentUserID)
                 .Returns(currentUserId);
+
             restaurant = new Restaurant()
             {
                 Id = Guid.NewGuid(),
@@ -421,8 +588,13 @@ namespace FindAndBook.Tests.API
                 It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(),
                 It.IsAny<int>(), It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<int>()))
                 .Returns(() => restaurant);
-            restaurantsServiceMock.Setup(s => s.GetById(restaurant.Id))
+            restaurantsServiceMock.Setup(s => s.Edit(It.IsAny<Guid>(), It.IsAny<string>(),
+                It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(),
+                It.IsAny<int>(), It.IsAny<int>()))
                 .Returns(() => restaurant);
+            restaurantsServiceMock.Setup(s => s.GetById(It.IsAny<Guid>()))
+                .Returns(() => restaurant);
+
             controller = new RestaurantsController(authProviderMock.Object, restaurantsServiceMock.Object, mapperMock.Object);
         }
     }
