@@ -6,6 +6,7 @@ using FindAndBook.Providers.Contracts;
 using FindAndBook.Services.Contracts;
 using Moq;
 using NUnit.Framework;
+using System;
 using System.Web.Http.Results;
 
 namespace FindAndBook.Tests.API
@@ -19,6 +20,7 @@ namespace FindAndBook.Tests.API
         private UsersController controller;
         private User user;
         private string token = "token";
+        private Guid currentUserId = Guid.NewGuid();
 
         [Test]
         public void ActionRegisterShould_ReturnInvalidModelStateResult_WhenModelIsNull()
@@ -238,6 +240,112 @@ namespace FindAndBook.Tests.API
             Assert.IsInstanceOf(typeof(OkNegotiatedContentResult<string>), result);
         }
 
+        [Test]
+        public void ActionGetProfileShould_ReturnBadRequest_WhenPassedUsernameIsNull()
+        {
+            var result = controller.GetProfile(null);
+
+            Assert.IsInstanceOf<BadRequestResult>(result);
+        }
+
+        [Test]
+        public void ActionGetProfileShould_ReturnBadRequest_WhenPassedUsernameIsEmpty()
+        {
+            var result = controller.GetProfile("");
+
+            Assert.IsInstanceOf<BadRequestResult>(result);
+        }
+
+        [Test]
+        public void ActionGetProfileShould_GetCurrentUserId_WhenPassedUsernameIsCorrect()
+        {
+            var username = "test";
+
+            var result = controller.GetProfile(username);
+
+            authProviderMock.Verify(ap => ap.CurrentUserID, Times.Once);
+        }
+
+        [Test]
+        public void ActionGetProfileShould_CallServiceMethodGetByUsername_WhenPassedUsernameIsCorrect()
+        {
+            var username = "test";
+
+            var result = controller.GetProfile(username);
+
+            usersServiceMock.Verify(s => s.GetByUsername(username), Times.Once);
+        }
+
+        [Test]
+        public void ActionGetProfileShould_ReturnNotFound_WhenUserWasNotFound()
+        {
+            var username = "test";
+            usersServiceMock.Setup(s => s.GetByUsername(It.IsAny<string>()))
+                .Returns(() => null);
+
+            var result = controller.GetProfile(username);
+
+            Assert.IsInstanceOf<NotFoundResult>(result);
+        }
+
+        [Test]
+        public void ActionGetProfileShould_ReturnForbidden_WhenCurrentUserAndFoundUserAreNotSame()
+        {
+            var username = "test";
+
+            var result = controller.GetProfile(username);
+
+            Assert.IsInstanceOf<NegotiatedContentResult<string>>(result);
+        }
+
+        [Test]
+        public void ActionGetProfileShould_CallMapper()
+        {
+            var username = "test";
+            user.Id = currentUserId;
+
+            var model = new UserProfileModel()
+            {
+                Username = "test",
+                Email = "test@email.com",
+                FirstName = "Test",
+                LastName = "Test",
+                PhoneNumber = "085565226114",
+                Role = "User"
+            };
+
+            mapperMock.Setup(m => m.MapUser(It.IsAny<User>()))
+                .Returns(() => model);
+
+            var result = controller.GetProfile(username);
+
+            mapperMock.Verify(m => m.MapUser(user), Times.Once);
+        }
+
+        [Test]
+        public void ActionGetProfileShould_ReturnOk_WhenUserWasFound()
+        {
+            var username = "test";
+            user.Id = currentUserId;
+
+            var model = new UserProfileModel()
+            {
+                Username = "test",
+                Email = "test@email.com",
+                FirstName = "Test",
+                LastName = "Test",
+                PhoneNumber = "085565226114",
+                Role = "User"
+            };
+
+            mapperMock.Setup(m => m.MapUser(It.IsAny<User>()))
+                .Returns(() => model);
+
+            var result = controller.GetProfile(username);
+
+            Assert.IsInstanceOf<OkNegotiatedContentResult<UserProfileModel>>(result);
+        }
+
         [SetUp]
         public void SetUp()
         {
@@ -247,6 +355,7 @@ namespace FindAndBook.Tests.API
 
             user = new User()
             {
+                Id = Guid.NewGuid(),
                 UserName = "test",
                 Password = "test",
                 Email = "test@email.com",
@@ -258,8 +367,12 @@ namespace FindAndBook.Tests.API
                 .Returns(() => user);
             usersServiceMock.Setup(s => s.GetByUsernameAndPassword(It.IsAny<string>(), It.IsAny<string>()))
                 .Returns(() => user);
+            usersServiceMock.Setup(s => s.GetByUsername(It.IsAny<string>()))
+                .Returns(() => user);
             authProviderMock.Setup(ap => ap.GenerateToken(It.IsAny<string>(), It.IsAny<string>()))
                 .Returns(() => token);
+            authProviderMock.Setup(ap => ap.CurrentUserID)
+                .Returns(() => currentUserId);
 
             controller = new UsersController(usersServiceMock.Object, authProviderMock.Object, mapperMock.Object);
         }

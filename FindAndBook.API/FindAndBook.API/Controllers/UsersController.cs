@@ -75,33 +75,26 @@ namespace FindAndBook.API.Controllers
         [Route("api/users/{username}")]
         public IHttpActionResult GetProfile([FromUri]string username)
         {
-            var currentUserId = this.authProvider.CurrentUserID;
-
-            if (username == null || String.IsNullOrEmpty(username))
+            if (String.IsNullOrEmpty(username))
             {
                 return BadRequest();
             }
 
-            var user = this.usersService.GetByUsername(username);
-            if (user == null)
+            var currentUserId = this.authProvider.CurrentUserID;
+            
+            var foundUser = this.usersService.GetByUsername(username);
+            if (foundUser == null)
             {
                 return NotFound();
             }
             else
             {
-                if (user.Id != currentUserId)
+                if (foundUser.Id != currentUserId)
                 {
                     return Content(System.Net.HttpStatusCode.Forbidden, "You can see only your profile.");
                 }
 
-                var response = new
-                {
-                    Username = user.UserName,
-                    Email = user.Email,
-                    FirstName = user.FirstName,
-                    LastName = user.LastName,
-                    PhoneNumber = user.PhoneNumber
-                };
+                var response = this.mapper.MapUser(foundUser);
 
                 return Ok(response);
             }
