@@ -19,17 +19,5 @@ namespace FindAndBook.Tests.Data
 
             mockedDbContext.Verify(c => c.SaveChanges(), Times.Once);
         }
-
-        [Test]
-        public void CommitAsyncShould_CallDbContextSaveChangesAsync()
-        {
-            var mockedDbContext = new Mock<IDbContext>();
-
-            var unitOfWork = new UnitOfWork(mockedDbContext.Object);
-
-            unitOfWork.CommitAsync();
-
-            mockedDbContext.Verify(c => c.SaveChangesAsync(), Times.Once);
-        }
     }
 }

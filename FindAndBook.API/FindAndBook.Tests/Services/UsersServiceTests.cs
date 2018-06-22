@@ -13,31 +13,28 @@ namespace FindAndBook.Tests.Services
     [TestFixture]
     public class UsersServiceTests
     {
-        [TestCase("pesho", "pesho@gmail.com", "Pesho", "Peshov", "0863566565")]
-        public void MethodCreateShould_CallFactoryMethodCreate(string username, string email, string firstName, string lastName, string phoneNumber)
+        private Mock<IRepository<User>> repositoryMock;
+        private Mock<IUnitOfWork> unitOfWorkMock;
+        private Mock<IUsersFactory> usersFactoryMock;
+        private Mock<IManagersFactory> managersFactoryMock;
+
+        [TestCase("pesho", "pass", "pesho@gmail.com", "Pesho", "Peshov", "0863566565", "user")]
+        public void MethodCreateShould_CallFactoryMethodCreate(string username, string password, string email, string firstName, string lastName, string phoneNumber, string role)
         {
-            var repositoryMock = new Mock<IRepository<User>>();
-            var unitOfWorkMock = new Mock<IUnitOfWork>();
-            var factoryMock = new Mock<IUsersFactory>();
+            var service = new UsersService(repositoryMock.Object, unitOfWorkMock.Object, usersFactoryMock.Object, managersFactoryMock.Object);
+            service.Create(username, password, email, firstName, lastName, phoneNumber, role);
 
-            var service = new UsersService(repositoryMock.Object, unitOfWorkMock.Object, factoryMock.Object);
-            service.Create(username, email, firstName, lastName, phoneNumber);
-
-            factoryMock.Verify(f => f.Create(username, email, firstName, lastName, phoneNumber), Times.Once);
+            usersFactoryMock.Verify(f => f.Create(username, password, email, firstName, lastName, phoneNumber), Times.Once);
         }
 
-        [TestCase("pesho", "pesho@gmail.com", "Pesho", "Peshov", "0863566565")]
-        public void MethodCreateShould_ReturnCorrectUser(string username, string email, string firstName, string lastName, string phoneNumber)
+        [TestCase("pesho", "pass", "pesho@gmail.com", "Pesho", "Peshov", "0863566565", "user")]
+        public void MethodCreateShould_ReturnCorrectUser(string username, string password, string email, string firstName, string lastName, string phoneNumber, string role)
         {
-            var repositoryMock = new Mock<IRepository<User>>();
-            var unitOfWorkMock = new Mock<IUnitOfWork>();
-            var factoryMock = new Mock<IUsersFactory>();
-            var user = new User(username, email, firstName, lastName, phoneNumber);
+            var user = new User(username, password, email, firstName, lastName, phoneNumber);
+            usersFactoryMock.Setup(f => f.Create(username, password, email, firstName, lastName, phoneNumber)).Returns(user);
 
-            factoryMock.Setup(f => f.Create(username, email, firstName, lastName, phoneNumber)).Returns(user);
-
-            var service = new UsersService(repositoryMock.Object, unitOfWorkMock.Object, factoryMock.Object);
-            var result = service.Create(username, email, firstName, lastName, phoneNumber);
+            var service = new UsersService(repositoryMock.Object, unitOfWorkMock.Object, usersFactoryMock.Object, managersFactoryMock.Object);
+            var result = service.Create(username, password, email, firstName, lastName, phoneNumber, role);
 
             Assert.AreSame(user, result);
         }
@@ -46,29 +43,24 @@ namespace FindAndBook.Tests.Services
         [TestCase("99ae8dd3-1067-4141-9675-62e94bb6caaa")]
         public void MethodDeleteShould_CallRepositoryMethodGetById(string id)
         {
-            var repositoryMock = new Mock<IRepository<User>>();
-            var unitOfWorkMock = new Mock<IUnitOfWork>();
-            var factoryMock = new Mock<IUsersFactory>();
+            var guidId = Guid.Parse(id);
 
-            var service = new UsersService(repositoryMock.Object, unitOfWorkMock.Object, factoryMock.Object);
-            service.Delete(id);
+            var service = new UsersService(repositoryMock.Object, unitOfWorkMock.Object, usersFactoryMock.Object, managersFactoryMock.Object);
+            service.Delete(guidId);
 
-            repositoryMock.Verify(r => r.GetById(id), Times.Once);
+            repositoryMock.Verify(r => r.GetById(guidId), Times.Once);
         }
 
         [TestCase("d547a40d-c45f-4c43-99de-0bfe9199ff95")]
         [TestCase("99ae8dd3-1067-4141-9675-62e94bb6caaa")]
         public void MethodDeleteShould_CallRepositoryMethodDelete(string id)
         {
-            var repositoryMock = new Mock<IRepository<User>>();
-            var unitOfWorkMock = new Mock<IUnitOfWork>();
-            var factoryMock = new Mock<IUsersFactory>();
+            var guidId = Guid.Parse(id);
+            var user = new User() { Id = guidId };
+            repositoryMock.Setup(r => r.GetById(guidId)).Returns(user);
 
-            var user = new User() { Id = id };
-            repositoryMock.Setup(r => r.GetById(id)).Returns(user);
-
-            var service = new UsersService(repositoryMock.Object, unitOfWorkMock.Object, factoryMock.Object);
-            service.Delete(id);
+            var service = new UsersService(repositoryMock.Object, unitOfWorkMock.Object, usersFactoryMock.Object, managersFactoryMock.Object);
+            service.Delete(guidId);
 
             repositoryMock.Verify(r => r.Delete(user), Times.Once);
         }
@@ -77,12 +69,11 @@ namespace FindAndBook.Tests.Services
         [TestCase("99ae8dd3-1067-4141-9675-62e94bb6caaa")]
         public void MethodDeleteShould_CallUnitOfWorkMethodCommit(string id)
         {
-            var repositoryMock = new Mock<IRepository<User>>();
-            var unitOfWorkMock = new Mock<IUnitOfWork>();
-            var factoryMock = new Mock<IUsersFactory>();
-
-            var service = new UsersService(repositoryMock.Object, unitOfWorkMock.Object, factoryMock.Object);
-            service.Delete(id);
+            var guidId = Guid.Parse(id);
+            repositoryMock.Setup(r => r.GetById(guidId)).Returns(() => new User() { Id = guidId });
+          
+            var service = new UsersService(repositoryMock.Object, unitOfWorkMock.Object, usersFactoryMock.Object, managersFactoryMock.Object);
+            service.Delete(guidId);
 
             unitOfWorkMock.Verify(r => r.Commit(), Times.Once);
         }
@@ -90,11 +81,7 @@ namespace FindAndBook.Tests.Services
         [Test]
         public void MethodGetAllShould_CallRepositoryPropertyAll()
         {
-            var repositoryMock = new Mock<IRepository<User>>();
-            var unitOfWorkMock = new Mock<IUnitOfWork>();
-            var factoryMock = new Mock<IUsersFactory>();
-
-            var service = new UsersService(repositoryMock.Object, unitOfWorkMock.Object, factoryMock.Object);
+            var service = new UsersService(repositoryMock.Object, unitOfWorkMock.Object, usersFactoryMock.Object, managersFactoryMock.Object);
             service.GetAll();
 
             repositoryMock.Verify(r => r.All, Times.Once);
@@ -103,13 +90,10 @@ namespace FindAndBook.Tests.Services
         [Test]
         public void MethodGetAllShould_ReturnCorrectResult()
         {
-            var repositoryMock = new Mock<IRepository<User>>();
-            var unitOfWorkMock = new Mock<IUnitOfWork>();
-            var factoryMock = new Mock<IUsersFactory>();
             var user = new User() { UserName = "user1" };
 
             repositoryMock.Setup(r => r.All).Returns(new List<User> { user }.AsQueryable<User>);
-            var service = new UsersService(repositoryMock.Object, unitOfWorkMock.Object, factoryMock.Object);
+            var service = new UsersService(repositoryMock.Object, unitOfWorkMock.Object, usersFactoryMock.Object, managersFactoryMock.Object);
             var result = service.GetAll();
 
             Assert.Contains(user, result.ToList());
@@ -119,29 +103,25 @@ namespace FindAndBook.Tests.Services
         [TestCase("99ae8dd3-1067-4141-9675-62e94bb6caaa")]
         public void MethodGetByIdShould_CallRepositoryMethodGetById(string id)
         {
-            var repositoryMock = new Mock<IRepository<User>>();
-            var unitOfWorkMock = new Mock<IUnitOfWork>();
-            var factoryMock = new Mock<IUsersFactory>();
+            var guidId = Guid.Parse(id);
 
-            var service = new UsersService(repositoryMock.Object, unitOfWorkMock.Object, factoryMock.Object);
-            service.GetById(id);
+            var service = new UsersService(repositoryMock.Object, unitOfWorkMock.Object, usersFactoryMock.Object, managersFactoryMock.Object);
+            service.GetById(guidId);
 
-            repositoryMock.Verify(r => r.GetById(id), Times.Once);
+            repositoryMock.Verify(r => r.GetById(guidId), Times.Once);
         }
 
         [TestCase("d547a40d-c45f-4c43-99de-0bfe9199ff95")]
         [TestCase("99ae8dd3-1067-4141-9675-62e94bb6caaa")]
         public void MethodGetByIdShould_ReturnCorrectUser(string id)
         {
-            var repositoryMock = new Mock<IRepository<User>>();
-            var unitOfWorkMock = new Mock<IUnitOfWork>();
-            var factoryMock = new Mock<IUsersFactory>();
             var foundUserMock = new Mock<User>();
+            var guidId = Guid.Parse(id);
 
-            repositoryMock.Setup(r => r.GetById(id)).Returns(foundUserMock.Object);
+            repositoryMock.Setup(r => r.GetById(guidId)).Returns(foundUserMock.Object);
 
-            var service = new UsersService(repositoryMock.Object, unitOfWorkMock.Object, factoryMock.Object);
-            var result = service.GetById(id);
+            var service = new UsersService(repositoryMock.Object, unitOfWorkMock.Object, usersFactoryMock.Object, managersFactoryMock.Object);
+            var result = service.GetById(guidId);
 
             Assert.AreSame(foundUserMock.Object, result);
         }
@@ -150,11 +130,7 @@ namespace FindAndBook.Tests.Services
         [TestCase("user2")]
         public void MethodGetByUsernameShould_CallRepositoryPropertyAll(string username)
         {
-            var repositoryMock = new Mock<IRepository<User>>();
-            var unitOfWorkMock = new Mock<IUnitOfWork>();
-            var factoryMock = new Mock<IUsersFactory>();
-
-            var service = new UsersService(repositoryMock.Object, unitOfWorkMock.Object, factoryMock.Object);
+            var service = new UsersService(repositoryMock.Object, unitOfWorkMock.Object, usersFactoryMock.Object, managersFactoryMock.Object);
             service.GetByUsername(username);
 
             repositoryMock.Verify(r => r.All, Times.Once);
@@ -164,29 +140,24 @@ namespace FindAndBook.Tests.Services
         [TestCase("user2")]
         public void MethodGetByUsernameShould_ReturnCorrectUser(string username)
         {
-            var repositoryMock = new Mock<IRepository<User>>();
-            var unitOfWorkMock = new Mock<IUnitOfWork>();
-            var factoryMock = new Mock<IUsersFactory>();
             var foundUser = new User() { UserName = username };
 
             repositoryMock.Setup(r => r.All).Returns(new List<User> { foundUser }.AsQueryable());
 
-            var service = new UsersService(repositoryMock.Object, unitOfWorkMock.Object, factoryMock.Object);
+            var service = new UsersService(repositoryMock.Object, unitOfWorkMock.Object, usersFactoryMock.Object, managersFactoryMock.Object);
             var result = service.GetByUsername(username);
 
-            Assert.Contains(foundUser, result.ToList());
+            Assert.AreSame(foundUser, result);
         }
 
         [TestCase("d547a40d-c45f-4c43-99de-0bfe9199ff95")]
         [TestCase("99ae8dd3-1067-4141-9675-62e94bb6caaa")]
         public void MethodGetUserWithBookingsShould_CallRepositoryPropertyAll(string id)
         {
-            var repositoryMock = new Mock<IRepository<User>>();
-            var unitOfWorkMock = new Mock<IUnitOfWork>();
-            var factoryMock = new Mock<IUsersFactory>();
+            var guidId = Guid.Parse(id);
 
-            var service = new UsersService(repositoryMock.Object, unitOfWorkMock.Object, factoryMock.Object);
-            service.GetUserWithBookings(id);
+            var service = new UsersService(repositoryMock.Object, unitOfWorkMock.Object, usersFactoryMock.Object, managersFactoryMock.Object);
+            service.GetUserWithBookings(guidId);
 
             repositoryMock.Verify(r => r.All, Times.Once);
         }
@@ -195,17 +166,24 @@ namespace FindAndBook.Tests.Services
         [TestCase("99ae8dd3-1067-4141-9675-62e94bb6caaa")]
         public void MethodGetUserWithBookingsShould_ReturnCorrectUserWithBookings(string id)
         {
-            var repositoryMock = new Mock<IRepository<User>>();
-            var unitOfWorkMock = new Mock<IUnitOfWork>();
-            var factoryMock = new Mock<IUsersFactory>();
             var booking = new Booking() { Id = new Guid("d547a40d-c45f-4c43-99de-0bfe9199ff95") };
-            var user = new User() { Id = id, Bookings = new List<Booking>() { booking } };
+            var guidId = Guid.Parse(id);
+            var user = new User() { Id = guidId, Bookings = new List<Booking>() { booking } };
 
             repositoryMock.Setup(r => r.All).Returns(new List<User> { user }.AsQueryable<User>);
-            var service = new UsersService(repositoryMock.Object, unitOfWorkMock.Object, factoryMock.Object);
-            var result = service.GetUserWithBookings(id);
+            var service = new UsersService(repositoryMock.Object, unitOfWorkMock.Object, usersFactoryMock.Object, managersFactoryMock.Object);
+            var result = service.GetUserWithBookings(guidId);
 
             Assert.AreSame(user, result);
+        }
+
+        [SetUp]
+        public void SetUp()
+        {
+            repositoryMock = new Mock<IRepository<User>>();
+            unitOfWorkMock = new Mock<IUnitOfWork>();
+            usersFactoryMock = new Mock<IUsersFactory>();
+            managersFactoryMock = new Mock<IManagersFactory>();
         }
     }
 }

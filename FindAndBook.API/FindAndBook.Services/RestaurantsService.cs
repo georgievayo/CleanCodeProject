@@ -10,6 +10,9 @@ namespace FindAndBook.Services
 {
     public class RestaurantsService : IRestaurantsService
     {
+        private const string NAME_SEARCH_OPTION = "name";
+        private const string ADDRESS_SEARCH_OPTION = "address";
+
         private readonly IRepository<Restaurant> repository;
         private readonly IUnitOfWork unitOfWork;
         private readonly IRestaurantsFactory factory;
@@ -22,10 +25,11 @@ namespace FindAndBook.Services
         }
 
         public Restaurant Create(string name, string contact, string weekendHours,
-            string weekdaayHours, string photo, string details, int averageBill, string managerId, string address)
+            string weekdaayHours, string photo, string details, int? averageBill, 
+            Guid managerId, string address, int maxPeopleCount)
         {
             var restaurant = this.factory.Create(name, contact, weekendHours, 
-                weekdaayHours, photo, details, averageBill, managerId, address);
+                weekdaayHours, photo, details, averageBill, managerId, address, maxPeopleCount);
 
             this.repository.Add(restaurant);
             this.unitOfWork.Commit();
@@ -44,25 +48,26 @@ namespace FindAndBook.Services
                 .FirstOrDefault(x => x.Id == id);
         }
 
-        public IQueryable<Restaurant> GetUserRestaurants(string userId)
+        public IQueryable<Restaurant> GetRestaurantsOfManger(Guid managerId)
         {
             return this.repository.All
-                .Where(x => x.ManagerId == userId)
+                .Where(x => x.ManagerId == managerId)
                 .Include(x => x.Bookings);
         }
 
         public Restaurant Edit(Guid id, string contact, string description,
-            string photoUrl, string weekdayHours, string weekendHours, int averageBill)
+            string photoUrl, string weekdayHours, string weekendHours, int? averageBill, int maxPeopleCount)
         {
             var restaurant = this.repository.GetById(id);
             if (restaurant != null)
             {
-                restaurant.Contact = contact;
-                restaurant.Details = description;
-                restaurant.PhotoUrl = photoUrl;
-                restaurant.WeekdayHours = weekdayHours;
-                restaurant.WeekendHours = weekendHours;
-                restaurant.AverageBill = averageBill;
+                restaurant.Contact = String.IsNullOrEmpty(contact) ? restaurant.Contact : contact;
+                restaurant.Details = String.IsNullOrEmpty(description) ? restaurant.Details : description;
+                restaurant.PhotoUrl = String.IsNullOrEmpty(photoUrl) ? restaurant.PhotoUrl : photoUrl;
+                restaurant.WeekdayHours = String.IsNullOrEmpty(weekdayHours) ? restaurant.WeekdayHours : weekdayHours;
+                restaurant.WeekendHours = String.IsNullOrEmpty(weekendHours) ? restaurant.WeekendHours : weekendHours;
+                restaurant.AverageBill = averageBill == null ? restaurant.AverageBill : averageBill;
+                restaurant.MaxPeopleCount = maxPeopleCount == 0 ? restaurant.MaxPeopleCount : maxPeopleCount;
 
                 this.repository.Update(restaurant);
                 this.unitOfWork.Commit();
@@ -94,11 +99,11 @@ namespace FindAndBook.Services
 
         public IQueryable<Restaurant> FindBy(string searchBy, string pattern)
         {
-            if (searchBy == "Name")
+            if (searchBy.ToLower() == NAME_SEARCH_OPTION)
             {
                 return this.FindByName(pattern);
             }
-            else if (searchBy == "Address")
+            else if (searchBy.ToLower() == ADDRESS_SEARCH_OPTION)
             {
                 return this.FindByAddress(pattern);
             }
@@ -109,12 +114,31 @@ namespace FindAndBook.Services
             }
         }
 
-        public void Delete(Guid id)
+        public bool Delete(Guid id)
         {
             var restaurant = this.repository.GetById(id);
+            if(restaurant == null)
+            {
+                return false;
+            }
 
             this.repository.Delete(restaurant);
             this.unitOfWork.Commit();
+
+            return true;
+        }
+
+        public int GetMaxPeopleCountOf(Guid restaurantId)
+        {
+            var restaurant = this.GetById(restaurantId);
+            if(restaurant == null)
+            {
+                return 0;
+            }
+            else
+            {
+                return restaurant.MaxPeopleCount;
+            }
         }
     }
 }

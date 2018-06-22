@@ -1,5 +1,4 @@
 ﻿using FindAndBook.Data.Contracts;
-using System.Threading.Tasks;
 
 namespace FindAndBook.Data
 {
@@ -15,11 +14,6 @@ namespace FindAndBook.Data
         public void Commit()
         {
             this.dbContext.SaveChanges();
-        }
-
-        public async Task CommitAsync()
-        {
-            await this.dbContext.SaveChangesAsync();
         }
     }
 }

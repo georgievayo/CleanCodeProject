@@ -2,6 +2,7 @@
 using FindAndBook.Factories;
 using FindAndBook.Models;
 using FindAndBook.Services;
+using FindAndBook.Services.Contracts;
 using Moq;
 using NUnit.Framework;
 using System;
@@ -13,17 +14,19 @@ namespace FindAndBook.Tests.Services
     [TestFixture]
     public class BookingsServiceTests
     {
-        [TestCase("d547a40d-c45f-4c43-99de-0bfe9199ff95", 10)]
-        public void MethodCreateShould_CallFactoryMethodCreateBooking(string userId, int peopleCount)
-        {
-            var repositoryMock = new Mock<IRepository<Booking>>();
-            var unitOfWorkMock = new Mock<IUnitOfWork>();
-            var factoryMock = new Mock<IBookingsFactory>();
+        private Mock<IRepository<Booking>> repositoryMock;
+        private Mock<IUnitOfWork> unitOfWorkMock;
+        private Mock<IBookingsFactory> factoryMock;
+        private Mock<IRestaurantsService> restaurantsServiceMock;
 
+        [TestCase(10)]
+        public void MethodCreateShould_CallFactoryMethodCreateBooking(int peopleCount)
+        {
             var service = new BookingsService(repositoryMock.Object,
-                unitOfWorkMock.Object, factoryMock.Object);
+                unitOfWorkMock.Object, factoryMock.Object, restaurantsServiceMock.Object);
 
             var restaurantId = Guid.NewGuid();
+            var userId = Guid.NewGuid();
             var dateTime = DateTime.Now;
 
             service.Create(restaurantId, userId, dateTime, peopleCount);
@@ -31,24 +34,22 @@ namespace FindAndBook.Tests.Services
             factoryMock.Verify(f => f.Create(restaurantId, userId, dateTime, peopleCount));
         }
 
-        [TestCase("d547a40d-c45f-4c43-99de-0bfe9199ff95", 5)]
-        public void MethodCreateShould_CallRepositoryMethodAdd(string userId, int peopleCount)
+        [TestCase(5)]
+        public void MethodCreateShould_CallRepositoryMethodAdd(int peopleCount)
         {
-            var repositoryMock = new Mock<IRepository<Booking>>();
-            var unitOfWorkMock = new Mock<IUnitOfWork>();
-            var factoryMock = new Mock<IBookingsFactory>();
-
             var service = new BookingsService(repositoryMock.Object,
-                unitOfWorkMock.Object, factoryMock.Object);
+                unitOfWorkMock.Object, factoryMock.Object, restaurantsServiceMock.Object);
 
             var restaurantId = Guid.NewGuid();
+            var userId = Guid.NewGuid();
+
             var dateTime = DateTime.Now;
             var booking = new Booking()
             {
                 RestaurantId = restaurantId,
                 UserId = userId,
                 DateTime = dateTime,
-                NumberOfPeople = peopleCount
+                PeopleCount = peopleCount
             };
 
             factoryMock.Setup(f => f.Create(restaurantId, userId, dateTime, peopleCount))
@@ -61,13 +62,9 @@ namespace FindAndBook.Tests.Services
 
         [Test]
         public void MethodGetAllOnShould_CallRepositoryMethodAll()
-        {
-            var repositoryMock = new Mock<IRepository<Booking>>();
-            var unitOfWorkMock = new Mock<IUnitOfWork>();
-            var factoryMock = new Mock<IBookingsFactory>();
-
+        {          
             var service = new BookingsService(repositoryMock.Object,
-                unitOfWorkMock.Object, factoryMock.Object);
+                unitOfWorkMock.Object, factoryMock.Object, restaurantsServiceMock.Object);
             var restaurantId = Guid.NewGuid();
             var dateTime = DateTime.Now;
 
@@ -79,10 +76,6 @@ namespace FindAndBook.Tests.Services
         [Test]
         public void MethodGetAllOnShould_ReturnCorrectResult()
         {
-            var repositoryMock = new Mock<IRepository<Booking>>();
-            var unitOfWorkMock = new Mock<IUnitOfWork>();
-            var factoryMock = new Mock<IBookingsFactory>();
-
             var restaurantId = Guid.NewGuid();
             var dateTime = DateTime.Now;
             var booking = new Booking() { RestaurantId = restaurantId, DateTime = dateTime };
@@ -90,7 +83,7 @@ namespace FindAndBook.Tests.Services
             repositoryMock.Setup(r => r.All).Returns(list.AsQueryable());
 
             var service = new BookingsService(repositoryMock.Object,
-                unitOfWorkMock.Object, factoryMock.Object);
+                unitOfWorkMock.Object, factoryMock.Object, restaurantsServiceMock.Object);
 
             var result = service.GetAllOn(dateTime, restaurantId);
 
@@ -99,13 +92,9 @@ namespace FindAndBook.Tests.Services
 
         [Test]
         public void MethodGetAllOfRestaurantShould_CallRepositoryMethodAll()
-        {
-            var repositoryMock = new Mock<IRepository<Booking>>();
-            var unitOfWorkMock = new Mock<IUnitOfWork>();
-            var factoryMock = new Mock<IBookingsFactory>();
-
+        {          
             var service = new BookingsService(repositoryMock.Object,
-                unitOfWorkMock.Object, factoryMock.Object);
+                unitOfWorkMock.Object, factoryMock.Object, restaurantsServiceMock.Object);
             var restaurantId = Guid.NewGuid();
 
             service.GetAllOfRestaurant(restaurantId);
@@ -116,17 +105,13 @@ namespace FindAndBook.Tests.Services
         [Test]
         public void MethodGetAllOfRestaurantShould_ReturnCorrectResult()
         {
-            var repositoryMock = new Mock<IRepository<Booking>>();
-            var unitOfWorkMock = new Mock<IUnitOfWork>();
-            var factoryMock = new Mock<IBookingsFactory>();
-
             var restaurantId = Guid.NewGuid();
             var booking = new Booking() { RestaurantId = restaurantId };
             var list = new List<Booking>() { booking };
             repositoryMock.Setup(r => r.All).Returns(list.AsQueryable());
 
             var service = new BookingsService(repositoryMock.Object,
-                unitOfWorkMock.Object, factoryMock.Object);
+                unitOfWorkMock.Object, factoryMock.Object, restaurantsServiceMock.Object);
 
             var result = service.GetAllOfRestaurant(restaurantId);
 
@@ -136,13 +121,9 @@ namespace FindAndBook.Tests.Services
         [Test]
         public void MethodGetByIdShould_CallRepositoryMethodGetById()
         {
-            var repositoryMock = new Mock<IRepository<Booking>>();
-            var unitOfWorkMock = new Mock<IUnitOfWork>();
-            var factoryMock = new Mock<IBookingsFactory>();
-
             var id = Guid.NewGuid();
             var service = new BookingsService(repositoryMock.Object,
-                unitOfWorkMock.Object, factoryMock.Object);
+                unitOfWorkMock.Object, factoryMock.Object, restaurantsServiceMock.Object);
 
             service.GetById(id);
 
@@ -152,16 +133,12 @@ namespace FindAndBook.Tests.Services
         [Test]
         public void MethodGetByIdShould_ReturnCorrectValue()
         {
-            var repositoryMock = new Mock<IRepository<Booking>>();
-            var unitOfWorkMock = new Mock<IUnitOfWork>();
-            var factoryMock = new Mock<IBookingsFactory>();
-
             var id = Guid.NewGuid();
             var booking = new Booking() { Id = id };
             repositoryMock.Setup(r => r.GetById(id)).Returns(booking);
 
             var service = new BookingsService(repositoryMock.Object,
-                unitOfWorkMock.Object, factoryMock.Object);
+                unitOfWorkMock.Object, factoryMock.Object, restaurantsServiceMock.Object);
 
             var result = service.GetById(id);
 
@@ -169,36 +146,14 @@ namespace FindAndBook.Tests.Services
         }
 
         [Test]
-        public void MethodDeleteShould_CallRepositoryMethodGetById()
-        {
-            var id = Guid.NewGuid();
-            var repositoryMock = new Mock<IRepository<Booking>>();
-            var unitOfWorkMock = new Mock<IUnitOfWork>();
-            var factoryMock = new Mock<IBookingsFactory>();
-
-            var service = new BookingsService(repositoryMock.Object,
-                unitOfWorkMock.Object, factoryMock.Object);
-
-            service.Delete(id);
-
-            repositoryMock.Verify(r => r.GetById(id), Times.Once);
-        }
-
-        [Test]
         public void MethodDeleteShould_CallRepositoryMethodDelete()
         {
-            var id = Guid.NewGuid();
-            var repositoryMock = new Mock<IRepository<Booking>>();
-            var unitOfWorkMock = new Mock<IUnitOfWork>();
-            var factoryMock = new Mock<IBookingsFactory>();
-
-            var booking = new Booking() { Id = id };
-            repositoryMock.Setup(r => r.GetById(id)).Returns(booking);
+            var booking = new Booking() { Id = Guid.NewGuid() };
 
             var service = new BookingsService(repositoryMock.Object,
-                unitOfWorkMock.Object, factoryMock.Object);
+                unitOfWorkMock.Object, factoryMock.Object, restaurantsServiceMock.Object);
 
-            service.Delete(id);
+            service.Delete(booking);
 
             repositoryMock.Verify(r => r.Delete(booking), Times.Once);
         }
@@ -206,20 +161,23 @@ namespace FindAndBook.Tests.Services
         [Test]
         public void MethodDeleteShould_CallUnitOfWorkMethodCommit()
         {
-            var id = Guid.NewGuid();
-            var repositoryMock = new Mock<IRepository<Booking>>();
-            var unitOfWorkMock = new Mock<IUnitOfWork>();
-            var factoryMock = new Mock<IBookingsFactory>();
-
-            var booking = new Booking() { Id = id };
-            repositoryMock.Setup(r => r.GetById(id)).Returns(booking);
+            var booking = new Booking() { Id = Guid.NewGuid() };
 
             var service = new BookingsService(repositoryMock.Object,
-                unitOfWorkMock.Object, factoryMock.Object);
+                unitOfWorkMock.Object, factoryMock.Object, restaurantsServiceMock.Object);
 
-            service.Delete(id);
+            service.Delete(booking);
 
             unitOfWorkMock.Verify(r => r.Commit(), Times.Once);
+        }
+
+        [SetUp]
+        public void SetUp()
+        {
+            repositoryMock = new Mock<IRepository<Booking>>();
+            unitOfWorkMock = new Mock<IUnitOfWork>();
+            factoryMock = new Mock<IBookingsFactory>();
+            restaurantsServiceMock = new Mock<IRestaurantsService>();
         }
     }
 }

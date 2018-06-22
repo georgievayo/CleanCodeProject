@@ -40,11 +40,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="IBookedTablesFactory.cs" />
     <Compile Include="IBookingsFactory.cs" />
+    <Compile Include="IManagersFactory.cs" />
     <Compile Include="IRestaurantsFactory.cs" />
-    <Compile Include="ITablesFactory.cs" />
-    <Compile Include="ITokensFactory.cs" />
     <Compile Include="IUsersFactory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
