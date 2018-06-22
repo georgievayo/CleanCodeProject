@@ -313,6 +313,83 @@ namespace FindAndBook.Tests.API
             Assert.IsInstanceOf<OkNegotiatedContentResult<List<RestaurantModel>>>(result);
         }
 
+        [Test]
+        public void ActionGetManagerRestaurantsShould_ReturnBadRequest_WhenUserIdIsNull()
+        {
+            var result = controller.GetManagerRestaurants(null);
+
+            Assert.IsInstanceOf<BadRequestResult>(result);
+        }
+
+        [Test]
+        public void ActionGetManagerRestaurantsShould_ReturnBadRequest_WhenUserIdIsEmpty()
+        {
+            var result = controller.GetManagerRestaurants("");
+
+            Assert.IsInstanceOf<BadRequestResult>(result);
+        }
+
+        [Test]
+        public void ActionGetManagerRestaurantsShould_ReturnBadRequest_WhenUserIdIsNotValid()
+        {
+            var userId = "not-valid";
+            var result = controller.GetManagerRestaurants(userId);
+
+            Assert.IsInstanceOf<BadRequestErrorMessageResult>(result);
+        }
+
+        [Test]
+        public void ActionGetManagerRestaurantsShould_GetCurrentUSerId_WhenUserIdIsValid()
+        {
+            var result = controller.GetManagerRestaurants(currentUserId.ToString());
+
+            authProviderMock.Verify(ap => ap.CurrentUserID, Times.Once);
+        }
+
+        [Test]
+        public void ActionGetManagerRestaurantsShould_ReturnConflict_WhenCurrentUserIdIsNotEqualToPassedUserId()
+        {
+            authProviderMock.Setup(ap => ap.CurrentUserID)
+                .Returns(() => Guid.NewGuid());
+
+            var result = controller.GetManagerRestaurants(currentUserId.ToString());
+
+            Assert.IsInstanceOf<NegotiatedContentResult<string>>(result);
+        }
+
+        [Test]
+        public void ActionGetManagerRestaurantsShould_CallServiceMethodGetRestaurantsOfManger_WhenCurrentUserIdIsEqualToPassedUserId()
+        {
+            var result = controller.GetManagerRestaurants(currentUserId.ToString());
+
+            restaurantsServiceMock.Verify(s => s.GetRestaurantsOfManger(currentUserId), Times.Once);
+        }
+
+        [Test]
+        public void ActionGetManagerRestaurantsShould_CallMapper_WhenCurrentUserIdIsEqualToPassedUserId()
+        {
+            var foundRestaurants = new List<Restaurant>() { restaurant };
+            var queryableRestaurants = foundRestaurants.AsQueryable();
+            restaurantsServiceMock.Setup(s => s.GetRestaurantsOfManger(It.IsAny<Guid>()))
+                .Returns(() => queryableRestaurants);
+
+            var result = controller.GetManagerRestaurants(currentUserId.ToString());
+
+            mapperMock.Verify(m => m.MapRestaurantsCollection(queryableRestaurants), Times.Once);
+        }
+
+        [Test]
+        public void ActionGetManagerRestaurantsShould_ReturnOkWithManagerRestaurants_WhenCurrentUserIdIsEqualToPassedUserId()
+        {
+            var foundRestaurants = new List<Restaurant>() { restaurant };
+            var queryableRestaurants = foundRestaurants.AsQueryable();
+            restaurantsServiceMock.Setup(s => s.GetRestaurantsOfManger(It.IsAny<Guid>()))
+                .Returns(() => queryableRestaurants);
+
+            var result = controller.GetManagerRestaurants(currentUserId.ToString());
+
+            Assert.IsInstanceOf<OkNegotiatedContentResult<List<RestaurantModel>>>(result);
+        }
 
         [SetUp]
         public void SetUp()
