@@ -346,6 +346,81 @@ namespace FindAndBook.Tests.API
             Assert.IsInstanceOf<OkNegotiatedContentResult<UserProfileModel>>(result);
         }
 
+        [Test]
+        public void ActionDeleteUserShould_ReturnBadRequest_WhenUserIdIsNull()
+        {
+            var result = controller.DeleteUser(null);
+
+            Assert.IsInstanceOf<BadRequestResult>(result);
+        }
+
+        [Test]
+        public void ActionDeleteUserShould_ReturnBadRequest_WhenUserIdIsEmpty()
+        {
+            var result = controller.DeleteUser("");
+
+            Assert.IsInstanceOf<BadRequestResult>(result);
+        }
+
+        [Test]
+        public void ActionDeleteUserShould_ReturnBadRequest_WhenUserIdIsNotValidGuid()
+        {
+            var userId = "not-valid";
+            var result = controller.DeleteUser(userId);
+
+            Assert.IsInstanceOf<BadRequestErrorMessageResult>(result);
+        }
+
+        [Test]
+        public void ActionDeleteUserShould_GetCurrentUserId_WhenUserIdIsValid()
+        {
+            var userId = user.Id.ToString();
+            var result = controller.DeleteUser(userId);
+
+            authProviderMock.Verify(ap => ap.CurrentUserID, Times.Once);
+        }
+
+        [Test]
+        public void ActionDeleteUserShould_ReturnForbidden_WhenCurrentUserAndUserToDeleteAreNotSame()
+        {
+            var userId = user.Id.ToString();
+
+            var result = controller.DeleteUser(userId);
+
+            Assert.IsInstanceOf<NegotiatedContentResult<string>>(result);
+        }
+
+        [Test]
+        public void ActionDeleteUserShould_CallServiceMethodDetele_WhenCurrentUserWantsToDeleteHisProfile()
+        {
+            var userId = currentUserId.ToString();
+
+            var result = controller.DeleteUser(userId);
+
+            usersServiceMock.Verify(s => s.Delete(currentUserId), Times.Once);
+        }
+
+        [Test]
+        public void ActionDeleteUserShould_ReturnNotFound_WhenUserToDeleteWasNotFound()
+        {
+            var userId = currentUserId.ToString();
+            usersServiceMock.Setup(s => s.GetById(currentUserId))
+                .Returns(() => null);
+
+            var result = controller.DeleteUser(userId);
+
+            Assert.IsInstanceOf<NotFoundResult>(result);
+        }
+
+        public void ActionDeleteUserShould_ReturnOk_WhenCurrentUserWantsToDeleteHisProfile()
+        {
+            var userId = currentUserId.ToString();
+
+            var result = controller.DeleteUser(userId);
+
+            Assert.IsInstanceOf<OkResult>(result);
+        }
+
         [SetUp]
         public void SetUp()
         {

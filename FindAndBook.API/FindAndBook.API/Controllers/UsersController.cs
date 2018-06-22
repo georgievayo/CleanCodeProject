@@ -104,21 +104,37 @@ namespace FindAndBook.API.Controllers
         [Route("api/users/{userId}")]
         public IHttpActionResult DeleteUser([FromUri]string userId)
         {
-            var currentUserId = this.authProvider.CurrentUserID;
-
-            if (userId == null || String.IsNullOrEmpty(userId))
+            if (String.IsNullOrEmpty(userId))
             {
                 return BadRequest();
             }
 
-            var isDeleted = this.usersService.Delete(Guid.Parse(userId));
-            if (isDeleted)
+            try
             {
-                return Ok();
+                var id = Guid.Parse(userId);
+                var currentUserId = this.authProvider.CurrentUserID;
+
+                if(id == currentUserId)
+                {
+                    var isDeleted = this.usersService.Delete(id);
+                    if (isDeleted)
+                    {
+                        return Ok();
+                    }
+                    else
+                    {
+                        return NotFound();
+                    }
+                }
+                else
+                {
+                    return Content(System.Net.HttpStatusCode.Forbidden, "You can delete only your profile.");
+                }
+                
             }
-            else
+            catch (FormatException)
             {
-                return NotFound();
+                return BadRequest("User id is incorrect.");
             }
         }
     }
