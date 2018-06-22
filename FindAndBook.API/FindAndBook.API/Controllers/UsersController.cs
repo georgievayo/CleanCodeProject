@@ -66,8 +66,8 @@ namespace FindAndBook.API.Controllers
                 var userRole = user.Role.ToString();
 
                 var token = this.authProvider.GenerateToken(userId, userRole);
-                var response = new { token = token };
-                return Ok(response);
+
+                return Ok(token);
             }
         }
 

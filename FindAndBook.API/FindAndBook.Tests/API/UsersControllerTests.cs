@@ -18,6 +18,7 @@ namespace FindAndBook.Tests.API
         private Mock<IModelsMapper> mapperMock;
         private UsersController controller;
         private User user;
+        private string token = "token";
 
         [Test]
         public void ActionRegisterShould_ReturnInvalidModelStateResult_WhenModelIsNull()
@@ -155,6 +156,88 @@ namespace FindAndBook.Tests.API
             mapperMock.Verify(m => m.MapUser(user));
         }
 
+        [Test]
+        public void ActionLoginShould_ReturnInvalidModelStateResult_WhenModelIsNull()
+        {
+            var result = controller.Login(null);
+            Assert.IsInstanceOf<InvalidModelStateResult>(result);
+        }
+
+        [Test]
+        public void ActionLoginShould_ReturnInvalidModelStateResult_WhenModelIsNotValid()
+        {
+            var errorMessage = "Username should has at least 6 characters.";
+
+            controller.ModelState.AddModelError("Username", errorMessage);
+            var model = new LoginModel()
+            {
+                Username = "test",
+                Password = "test"
+            };
+
+            var result = controller.Login(model);
+
+            Assert.IsInstanceOf<InvalidModelStateResult>(result);
+        }
+
+        [Test]
+        public void ActionLoginShould_CallServiceMethodGetByUsernameAndPassword_WhenModelIsValid()
+        {
+            var model = new LoginModel()
+            {
+                Username = "test",
+                Password = "test"
+            };
+
+            var result = controller.Login(model);
+
+            usersServiceMock.Verify(s => s.GetByUsernameAndPassword(model.Username, model.Password), Times.Once);
+        }
+
+        [Test]
+        public void ActionLoginShould_ReturnNotFound_WhenUserWasNotFound()
+        {
+            var model = new LoginModel()
+            {
+                Username = "test",
+                Password = "test"
+            };
+
+            usersServiceMock.Setup(s => s.GetByUsernameAndPassword(It.IsAny<string>(), It.IsAny<string>()))
+                .Returns(() => null);
+
+            var result = controller.Login(model);
+
+            Assert.IsInstanceOf<NotFoundResult>(result);
+        }
+
+        [Test]
+        public void ActionLoginShould_CallAuthProviderMethodGenerateToken_WhenUserWasFound()
+        {
+            var model = new LoginModel()
+            {
+                Username = "test",
+                Password = "test"
+            };
+
+            var result = controller.Login(model);
+
+            authProviderMock.Verify(ap => ap.GenerateToken(It.IsAny<string>(), user.Role.ToString()), Times.Once);
+        }
+
+        [Test]
+        public void ActionLoginShould_ReturnGeneratedToken_WhenUserWasLoggedIn()
+        {
+            var model = new LoginModel()
+            {
+                Username = "test",
+                Password = "test"
+            };
+
+            var result = controller.Login(model);
+            Assert.IsInstanceOf(typeof(OkNegotiatedContentResult<string>), result);
+        }
+
         [SetUp]
         public void SetUp()
         {
@@ -173,6 +256,10 @@ namespace FindAndBook.Tests.API
             };
             usersServiceMock.Setup(s => s.Create(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
                 .Returns(() => user);
+            usersServiceMock.Setup(s => s.GetByUsernameAndPassword(It.IsAny<string>(), It.IsAny<string>()))
+                .Returns(() => user);
+            authProviderMock.Setup(ap => ap.GenerateToken(It.IsAny<string>(), It.IsAny<string>()))
+                .Returns(() => token);
 
             controller = new UsersController(usersServiceMock.Object, authProviderMock.Object, mapperMock.Object);
         }
