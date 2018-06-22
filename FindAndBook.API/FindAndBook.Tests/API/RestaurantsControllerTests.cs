@@ -7,6 +7,8 @@ using FindAndBook.Services.Contracts;
 using Moq;
 using NUnit.Framework;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Web.Http.Results;
 
 namespace FindAndBook.Tests.API
@@ -222,6 +224,94 @@ namespace FindAndBook.Tests.API
             Assert.IsInstanceOf<OkNegotiatedContentResult<RestaurantModel>>(result);
         }
 
+
+        [Test]
+        public void ActionSearchShould_CallServiceMethodGetAll_WhenSearchCriteriaIsNotPassed()
+        {
+            var criteria = new SearchCriteria();
+            var result = controller.Search(criteria);
+
+            restaurantsServiceMock.Verify(s => s.GetAll(), Times.Once);
+        }
+
+
+        [Test]
+        public void ActionSearchShould_CallMapper_WhenSearchCriteriaIsNotPassed()
+        {
+            var criteria = new SearchCriteria();
+            var foundRestaurants = new List<Restaurant>() { restaurant };
+            var queryableRestaurants = foundRestaurants.AsQueryable();
+            restaurantsServiceMock.Setup(s => s.GetAll())
+                .Returns(() => queryableRestaurants);
+
+            var result = controller.Search(criteria);
+
+            mapperMock.Verify(m => m.MapRestaurantsCollection(queryableRestaurants), Times.Once);
+        }
+
+        [Test]
+        public void ActionSearchShould_ReturnOkWithAllRestaurants_WhenSearchCriteriaIsNotPassed()
+        {
+            var criteria = new SearchCriteria();
+            var foundRestaurants = new List<Restaurant>() { restaurant };
+            var queryableRestaurants = foundRestaurants.AsQueryable();
+            restaurantsServiceMock.Setup(s => s.GetAll())
+                .Returns(() => queryableRestaurants);
+
+            var result = controller.Search(criteria);
+
+            Assert.IsInstanceOf<OkNegotiatedContentResult<List<RestaurantModel>>>(result);
+        }
+
+        [Test]
+        public void ActionSearchShould_CallServiceMethodFindBy_WhenSearchCriteriaIsPassed()
+        {
+            var criteria = new SearchCriteria()
+            {
+                SearchBy = "name",
+                Pattern = "t"
+            };
+           
+            var result = controller.Search(criteria);
+
+            restaurantsServiceMock.Verify(s => s.FindBy(criteria.SearchBy, criteria.Pattern), Times.Once);
+        }
+
+        [Test]
+        public void ActionSearchShould_CallMapper_WhenSearchCriteriaIsPassed()
+        {
+            var criteria = new SearchCriteria()
+            {
+                SearchBy = "name",
+                Pattern = "t"
+            };
+            var foundRestaurants = new List<Restaurant>() { restaurant };
+            var queryableRestaurants = foundRestaurants.AsQueryable();
+            restaurantsServiceMock.Setup(s => s.FindBy(It.IsAny<string>(), It.IsAny<string>()))
+                .Returns(() => queryableRestaurants);
+
+            var result = controller.Search(criteria);
+
+            mapperMock.Verify(m => m.MapRestaurantsCollection(queryableRestaurants), Times.Once);
+        }
+
+        [Test]
+        public void ActionSearchShould_ReturnOkAndFoundRestaurants_WhenSearchCriteriaIsPassed()
+        {
+            var criteria = new SearchCriteria()
+            {
+                SearchBy = "name",
+                Pattern = "t"
+            };
+            var foundRestaurants = new List<Restaurant>() { restaurant };
+            var queryableRestaurants = foundRestaurants.AsQueryable();
+            restaurantsServiceMock.Setup(s => s.FindBy(It.IsAny<string>(), It.IsAny<string>()))
+                .Returns(() => queryableRestaurants);
+
+            var result = controller.Search(criteria);
+
+            Assert.IsInstanceOf<OkNegotiatedContentResult<List<RestaurantModel>>>(result);
+        }
 
 
         [SetUp]

@@ -88,7 +88,7 @@ namespace FindAndBook.API.Controllers
         [Route("api/restaurants")]
         public IHttpActionResult Search([FromUri] SearchCriteria criteria)
         {
-            if (criteria.SearchBy == null && criteria.Pattern == null)
+            if (criteria == null || (criteria.SearchBy == null && criteria.Pattern == null))
             {
                 var allRestaurants = this.restaurantsService.GetAll();
                 var response = this.mapper.MapRestaurantsCollection(allRestaurants);
