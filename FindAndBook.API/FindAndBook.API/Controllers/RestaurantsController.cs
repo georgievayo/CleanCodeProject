@@ -34,20 +34,16 @@ namespace FindAndBook.API.Controllers
                 return BadRequest(ModelState);
             }
 
-            var currentUserId = this.authProvider.CurrentUserID;
             var currentUserRole = this.authProvider.CurrentUserRole;
 
             if (currentUserRole == MANAGER_ROLE)
             {
+                var currentUserId = this.authProvider.CurrentUserID;
+
                 var createdRestaurant = this.restaurantsService.Create(model.Name, model.Contact, model.WeekendHours,
                 model.WeekdayHours, model.PhotoUrl, model.Details, model.AverageBill, currentUserId, model.Address, model.MaxPeopleCount);
 
-                var response = new
-                {
-                    Id = createdRestaurant.Id,
-                    Name = createdRestaurant.Name,
-                    Details = createdRestaurant.Details
-                };
+                var response = this.mapper.MapRestaurant(createdRestaurant);
 
                 return Ok(response);
             }
