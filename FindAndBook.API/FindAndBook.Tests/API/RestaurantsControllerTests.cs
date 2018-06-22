@@ -557,6 +557,97 @@ namespace FindAndBook.Tests.API
             Assert.IsInstanceOf<OkNegotiatedContentResult<RestaurantModel>>(result);
         }
 
+        [Test]
+        public void ActionDeleteRestaurantShould_ReturnBadRequest_WhenRestaurantIdIsEmpty()
+        {
+            var result = controller.DeleteRestaurant("");
+
+            Assert.IsInstanceOf<BadRequestErrorMessageResult>(result);
+        }
+
+        [Test]
+        public void ActionDeleteRestaurantShould_ReturnBadRequest_WhenRestaurantIdIsNull()
+        {
+            var result = controller.DeleteRestaurant(null);
+
+            Assert.IsInstanceOf<BadRequestErrorMessageResult>(result);
+        }
+
+        [Test]
+        public void ActionDeleteRestaurantShould_ReturnBadRequest_WhenPassedIdIsNotValid()
+        {
+            var id = "not-valid";
+            var result = controller.DeleteRestaurant(id);
+
+            Assert.IsInstanceOf<BadRequestErrorMessageResult>(result);
+        }
+
+        [Test]
+        public void ActionDeleteRestaurantShould_CallServiceMethodGetById_WhenPassedIdIsValid()
+        {
+            var id = Guid.NewGuid();
+
+            var result = controller.DeleteRestaurant(id.ToString());
+
+            restaurantsServiceMock.Verify(s => s.GetById(id), Times.Once);
+        }
+
+        [Test]
+        public void ActionDeleteRestaurantShould_ReturnNotFound_WhenRestaurantWasNotFound()
+        {
+            var id = Guid.NewGuid();
+
+            restaurantsServiceMock.Setup(s => s.GetById(id))
+                .Returns(() => null);
+
+            var result = controller.DeleteRestaurant(id.ToString());
+
+            Assert.IsInstanceOf<NotFoundResult>(result);
+        }
+
+        [Test]
+        public void ActionDeleteRestaurantShould_GetCurrentUserId_WhenRestaurantWasFound()
+        {
+            var id = Guid.NewGuid();
+
+            var result = controller.DeleteRestaurant(id.ToString());
+
+            authProviderMock.Verify(ap => ap.CurrentUserID, Times.Once);
+        }
+
+        [Test]
+        public void ActionDeleteRestaurantShould_ReturnForbidden_WhenCurrentUserIsNotManagerOfRestaurant()
+        {
+            var id = Guid.NewGuid();
+
+            authProviderMock.Setup(s => s.CurrentUserID)
+                .Returns(() => Guid.NewGuid());
+
+            var result = controller.DeleteRestaurant(id.ToString());
+
+            Assert.IsInstanceOf<NegotiatedContentResult<string>>(result);
+        }
+
+        [Test]
+        public void ActionDeleteRestaurantShould_CallServiceMethodDelete_WhenCurrentUserIsManagerOfRestaurant()
+        {
+            var id = Guid.NewGuid();
+
+            var result = controller.DeleteRestaurant(id.ToString());
+
+            restaurantsServiceMock.Verify(s => s.Delete(id), Times.Once);
+        }
+
+        [Test]
+        public void ActionDeleteRestaurantShould_ReturnOk_WhenRestaurantWasDeleted()
+        {
+            var id = Guid.NewGuid();
+
+            var result = controller.DeleteRestaurant(id.ToString());
+
+            Assert.IsInstanceOf<OkResult>(result);
+        }
+
         [SetUp]
         public void SetUp()
         {

@@ -192,6 +192,11 @@ namespace FindAndBook.API.Controllers
         [Route("api/restaurants/{id}")]
         public IHttpActionResult DeleteRestaurant([FromUri] string id)
         {
+            if (String.IsNullOrEmpty(id))
+            {
+                return BadRequest("Restaurant Id is required.");
+            }
+
             try
             {
                 var restaurantId = Guid.Parse(id);
