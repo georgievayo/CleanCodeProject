@@ -34,20 +34,16 @@ namespace FindAndBook.API.Controllers
                 return BadRequest(ModelState);
             }
 
-            var currentUserId = this.authProvider.CurrentUserID;
             var currentUserRole = this.authProvider.CurrentUserRole;
 
             if (currentUserRole == MANAGER_ROLE)
             {
+                var currentUserId = this.authProvider.CurrentUserID;
+
                 var createdRestaurant = this.restaurantsService.Create(model.Name, model.Contact, model.WeekendHours,
                 model.WeekdayHours, model.PhotoUrl, model.Details, model.AverageBill, currentUserId, model.Address, model.MaxPeopleCount);
 
-                var response = new
-                {
-                    Id = createdRestaurant.Id,
-                    Name = createdRestaurant.Name,
-                    Details = createdRestaurant.Details
-                };
+                var response = this.mapper.MapRestaurant(createdRestaurant);
 
                 return Ok(response);
             }
@@ -92,7 +88,7 @@ namespace FindAndBook.API.Controllers
         [Route("api/restaurants")]
         public IHttpActionResult Search([FromUri] SearchCriteria criteria)
         {
-            if (criteria.SearchBy == null && criteria.Pattern == null)
+            if (criteria == null || (criteria.SearchBy == null && criteria.Pattern == null))
             {
                 var allRestaurants = this.restaurantsService.GetAll();
                 var response = this.mapper.MapRestaurantsCollection(allRestaurants);
@@ -150,6 +146,11 @@ namespace FindAndBook.API.Controllers
         [Route("api/restaurants/{id}")]
         public IHttpActionResult EditRestaurant([FromUri] string id, RestaurantModel model)
         {
+            if (String.IsNullOrEmpty(id))
+            {
+                return BadRequest("Restaurant id is required.");
+            }
+
             if (model == null || !ModelState.IsValid)
             {
                 return BadRequest(ModelState);
@@ -191,6 +192,11 @@ namespace FindAndBook.API.Controllers
         [Route("api/restaurants/{id}")]
         public IHttpActionResult DeleteRestaurant([FromUri] string id)
         {
+            if (String.IsNullOrEmpty(id))
+            {
+                return BadRequest("Restaurant Id is required.");
+            }
+
             try
             {
                 var restaurantId = Guid.Parse(id);

@@ -28,6 +28,11 @@ namespace FindAndBook.API.Controllers
         [Route("api/restaurants/{id}/bookings")]
         public IHttpActionResult BookATable([FromUri] string id, BookingModel model)
         {
+            if (String.IsNullOrEmpty(id))
+            {
+                return BadRequest("Restaurant id is required.");
+            }
+
             if(model == null || !ModelState.IsValid)
             {
                 return BadRequest(ModelState);
@@ -41,7 +46,7 @@ namespace FindAndBook.API.Controllers
                 var booking = this.bookingsService.BookTable(restaurantId, userId, model.Time, model.PeopleCount);
                 if(booking == null)
                 {
-                    return Conflict();
+                    return Content(System.Net.HttpStatusCode.Conflict, "All tables are reserved.");
                 }
                 else
                 {
