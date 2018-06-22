@@ -14,5 +14,7 @@ namespace FindAndBook.API.Mapper
         List<BookingModel> MapBookingsCollection(IQueryable<Booking> bookings);
 
         BookingModel MapBooking(Booking booking);
+
+        UserProfileModel MapUser(User user);
     }
 }

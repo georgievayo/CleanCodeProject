@@ -65,5 +65,20 @@ namespace FindAndBook.API.Mapper
 
             return mappedRestaurantsCollection;
         }
+
+        public UserProfileModel MapUser(User user)
+        {
+            var mappedUser = new UserProfileModel()
+            {
+                Username = user.UserName,
+                Id = user.Id,
+                Email = user.Email,
+                Role = user.Role.ToString(),
+                FirstName = user.FirstName,
+                LastName = user.LastName
+            };
+
+            return mappedUser;
+        }
     }
 }

@@ -1,4 +1,5 @@
-﻿using FindAndBook.API.Models;
+﻿using FindAndBook.API.Mapper;
+using FindAndBook.API.Models;
 using FindAndBook.Providers.Contracts;
 using FindAndBook.Services.Contracts;
 using System;
@@ -10,11 +11,14 @@ namespace FindAndBook.API.Controllers
     {
         private readonly IUsersService usersService;
         private readonly IAuthenticationProvider authProvider;
+        private readonly IModelsMapper mapper;
 
-        public UsersController(IUsersService usersService, IAuthenticationProvider authProvider)
+        public UsersController(IUsersService usersService, IAuthenticationProvider authProvider,
+            IModelsMapper mapper)
         {
             this.usersService = usersService;
             this.authProvider = authProvider;
+            this.mapper = mapper;
         }
 
         [HttpPost]
@@ -36,11 +40,7 @@ namespace FindAndBook.API.Controllers
             var createdUser = this.usersService.Create(model.Username, model.Password, model.Email,
             model.FirstName, model.LastName, model.PhoneNumber, model.Role);
 
-            var response = new
-            {
-                Id = createdUser.Id,
-                Username = createdUser.UserName
-            };
+            var response = this.mapper.MapUser(createdUser);
 
             return Ok(response);
         }
