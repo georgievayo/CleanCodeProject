@@ -149,7 +149,7 @@ namespace FindAndBook.Tests.API
         {
             var result = controller.GetRestaurantDetails(null);
 
-            Assert.IsInstanceOf<BadRequestResult>(result);
+            Assert.IsInstanceOf<BadRequestErrorMessageResult>(result);
         }
 
         [Test]
@@ -301,7 +301,7 @@ namespace FindAndBook.Tests.API
         {
             var result = controller.GetManagerRestaurants(null);
 
-            Assert.IsInstanceOf<BadRequestResult>(result);
+            Assert.IsInstanceOf<BadRequestErrorMessageResult>(result);
         }
 
         [Test]

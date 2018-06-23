@@ -89,7 +89,7 @@ namespace FindAndBook.Tests.API
 
             var result = controller.Register(model);
 
-            Assert.IsInstanceOf<ConflictResult>(result);
+            Assert.IsInstanceOf<NegotiatedContentResult<string>>(result);
         }
 
         [Test]
@@ -245,7 +245,7 @@ namespace FindAndBook.Tests.API
         {
             var result = controller.GetProfile(null);
 
-            Assert.IsInstanceOf<BadRequestResult>(result);
+            Assert.IsInstanceOf<BadRequestErrorMessageResult>(result);
         }
 
         [Test]
@@ -382,7 +382,7 @@ namespace FindAndBook.Tests.API
         {
             var result = controller.DeleteUser(null);
 
-            Assert.IsInstanceOf<BadRequestResult>(result);
+            Assert.IsInstanceOf<BadRequestErrorMessageResult>(result);
         }
 
         [Test]

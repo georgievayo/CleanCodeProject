@@ -1,4 +1,5 @@
-﻿using FindAndBook.API.Mapper;
+﻿using FindAndBook.API.App_Start;
+using FindAndBook.API.Mapper;
 using FindAndBook.API.Models;
 using FindAndBook.Models;
 using FindAndBook.Providers.Contracts;
@@ -30,7 +31,7 @@ namespace FindAndBook.API.Controllers
         {
             if (id == null)
             {
-                return BadRequest("Restaurant id is required.");
+                return BadRequest(Constants.REQUIRED_RESTAURANT_ID);
             }
 
             if (model == null || !ModelState.IsValid)
@@ -43,7 +44,7 @@ namespace FindAndBook.API.Controllers
             var booking = this.bookingsService.BookTable((Guid)id, userId, model.Time, model.PeopleCount);
             if (booking == null)
             {
-                return Content(System.Net.HttpStatusCode.Conflict, "All tables are reserved.");
+                return Content(System.Net.HttpStatusCode.Conflict, Constants.NO_AVAILABLE_TABLES);
             }
             else
             {
@@ -59,7 +60,7 @@ namespace FindAndBook.API.Controllers
         {
             if (id == null)
             {
-                return BadRequest("Booking Id is required.");
+                return BadRequest(Constants.REQUIRED_BOOKING_ID);
             }
 
             var booking = this.bookingsService.GetById((Guid)id);
@@ -72,7 +73,7 @@ namespace FindAndBook.API.Controllers
                 var currentUserId = this.authProvider.CurrentUserID;
                 if (booking.UserId != currentUserId)
                 {
-                    return Content(System.Net.HttpStatusCode.Forbidden, "You can cancel only your bookings.");
+                    return Content(System.Net.HttpStatusCode.Forbidden, Constants.FORBIDDEN_CANCEL_BOOKING);
                 }
                 else
                 {
@@ -88,7 +89,7 @@ namespace FindAndBook.API.Controllers
         {
             if (id == null)
             {
-                return BadRequest("Restaurant id is required.");
+                return BadRequest(Constants.REQUIRED_RESTAURANT_ID);
             }
 
             IQueryable<Booking> bookings = null;

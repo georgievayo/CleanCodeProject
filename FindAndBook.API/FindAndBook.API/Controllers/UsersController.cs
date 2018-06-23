@@ -1,4 +1,5 @@
-﻿using FindAndBook.API.Mapper;
+﻿using FindAndBook.API.App_Start;
+using FindAndBook.API.Mapper;
 using FindAndBook.API.Models;
 using FindAndBook.Providers.Contracts;
 using FindAndBook.Services.Contracts;
@@ -9,7 +10,6 @@ namespace FindAndBook.API.Controllers
 {
     public class UsersController : ApiController
     {
-        private const string MANAGER_ROLE = "Manager";
         private readonly IUsersService usersService;
         private readonly IAuthenticationProvider authProvider;
         private readonly IModelsMapper mapper;
@@ -35,7 +35,7 @@ namespace FindAndBook.API.Controllers
             var existingUser = this.usersService.GetByUsername(model.Username);
             if (existingUser != null)
             {
-                return Conflict();
+                return Content(System.Net.HttpStatusCode.Conflict, Constants.USERNAME_CONFLICT);
             }
 
             var createdUser = this.usersService.Create(model.Username, model.Password, model.Email,
@@ -78,7 +78,7 @@ namespace FindAndBook.API.Controllers
         {
             if (id == null)
             {
-                return BadRequest();
+                return BadRequest(Constants.REQUIRED_USER_ID);
             }
 
             var currentUserId = this.authProvider.CurrentUserID;
@@ -86,7 +86,7 @@ namespace FindAndBook.API.Controllers
             if (id == currentUserId)
             {
                 var currentUserRole = this.authProvider.CurrentUserRole;
-                if (currentUserRole == MANAGER_ROLE)
+                if (currentUserRole == Constants.MANAGER_ROLE)
                 {
                     var foundManager = this.usersService.GetManager((Guid)id);
 
@@ -114,7 +114,7 @@ namespace FindAndBook.API.Controllers
             }
             else
             {
-                return Content(System.Net.HttpStatusCode.Forbidden, "You can see only your profile.");
+                return Content(System.Net.HttpStatusCode.Forbidden, Constants.FORBIDDEN_GET_PROFILE);
             }
         }
 
@@ -124,7 +124,7 @@ namespace FindAndBook.API.Controllers
         {
             if (id == null)
             {
-                return BadRequest();
+                return BadRequest(Constants.REQUIRED_USER_ID);
             }
 
             var currentUserId = this.authProvider.CurrentUserID;
@@ -143,7 +143,7 @@ namespace FindAndBook.API.Controllers
             }
             else
             {
-                return Content(System.Net.HttpStatusCode.Forbidden, "You can delete only your profile.");
+                return Content(System.Net.HttpStatusCode.Forbidden, Constants.FORBIDDEN_DELETE_PROFILE);
             }
         }
     }

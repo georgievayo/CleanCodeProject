@@ -1,4 +1,5 @@
-﻿using FindAndBook.API.Mapper;
+﻿using FindAndBook.API.App_Start;
+using FindAndBook.API.Mapper;
 using FindAndBook.API.Models;
 using FindAndBook.Providers.Contracts;
 using FindAndBook.Services.Contracts;
@@ -9,8 +10,6 @@ namespace FindAndBook.API.Controllers
 {
     public class RestaurantsController : ApiController
     {
-        private const string MANAGER_ROLE = "Manager";
-
         private readonly IAuthenticationProvider authProvider;
 
         private readonly IRestaurantsService restaurantsService;
@@ -36,7 +35,7 @@ namespace FindAndBook.API.Controllers
 
             var currentUserRole = this.authProvider.CurrentUserRole;
 
-            if (currentUserRole == MANAGER_ROLE)
+            if (currentUserRole == Constants.MANAGER_ROLE)
             {
                 var currentUserId = this.authProvider.CurrentUserID;
 
@@ -59,8 +58,9 @@ namespace FindAndBook.API.Controllers
         {
             if (id == null)
             {
-                return BadRequest();
+                return BadRequest(Constants.REQUIRED_RESTAURANT_ID);
             }
+
             var restaurant = this.restaurantsService.GetById((Guid)id);
 
             if (restaurant == null)
@@ -98,7 +98,7 @@ namespace FindAndBook.API.Controllers
             }
             catch (FormatException)
             {
-                return BadRequest("Average Bill must be a valid number.");
+                return BadRequest(Constants.INCORRECT_AVERAGE_BILL);
             }
         }
 
@@ -108,14 +108,14 @@ namespace FindAndBook.API.Controllers
         {
             if (id == null)
             {
-                return BadRequest();
+                return BadRequest(Constants.REQUIRED_USER_ID);
             }
 
             var currentUserId = this.authProvider.CurrentUserID;
 
             if (id != currentUserId)
             {
-                return Content(System.Net.HttpStatusCode.Forbidden, "You can see only list of your restaurants");
+                return Content(System.Net.HttpStatusCode.Forbidden, Constants.FORBIDDEN_MANAGER_RESTAURANTS_LISTING);
             }
 
             var restaurants = this.restaurantsService.GetRestaurantsOfManger((Guid)id);
@@ -131,7 +131,7 @@ namespace FindAndBook.API.Controllers
         {
             if (id == null)
             {
-                return BadRequest("Restaurant id is required.");
+                return BadRequest(Constants.REQUIRED_RESTAURANT_ID);
             }
 
             if (model == null || !ModelState.IsValid)
@@ -159,7 +159,7 @@ namespace FindAndBook.API.Controllers
             }
             else
             {
-                return Content(System.Net.HttpStatusCode.Forbidden, "Only manager of this restaurant can edit it.");
+                return Content(System.Net.HttpStatusCode.Forbidden, Constants.FORBIDDEN_EDIT_RESTAURANT);
             }
         }
 
@@ -169,7 +169,7 @@ namespace FindAndBook.API.Controllers
         {
             if (id == null)
             {
-                return BadRequest("Restaurant Id is required.");
+                return BadRequest(Constants.REQUIRED_RESTAURANT_ID);
             }
 
             var restaurant = this.restaurantsService.GetById((Guid)id);
@@ -187,7 +187,7 @@ namespace FindAndBook.API.Controllers
             }
             else
             {
-                return Content(System.Net.HttpStatusCode.Forbidden, "Only manager of this restaurant can delete it.");
+                return Content(System.Net.HttpStatusCode.Forbidden, Constants.FORBIDDEN_DELETE_RESTAURANT);
             }
         }
     }
