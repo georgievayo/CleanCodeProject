@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace FindAndBook.API.Models
 {
@@ -17,5 +18,7 @@ namespace FindAndBook.API.Models
         public string PhoneNumber { get; set; }
 
         public string Role { get; set; }
+
+        public ICollection<BookingModel> Bookings { get; set; }
     }
 }

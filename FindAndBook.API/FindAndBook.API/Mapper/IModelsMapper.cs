@@ -16,5 +16,7 @@ namespace FindAndBook.API.Mapper
         BookingModel MapBooking(Booking booking);
 
         UserProfileModel MapUser(User user);
+
+        ManagerProfileModel MapManager(Manager manager);
     }
 }

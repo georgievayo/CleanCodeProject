@@ -55,32 +55,23 @@ namespace FindAndBook.API.Controllers
 
         [HttpGet]
         [Route("api/restaurants/{id}")]
-        public IHttpActionResult GetRestaurantDetails([FromUri]string id)
+        public IHttpActionResult GetRestaurantDetails([FromUri]Guid? id)
         {
-            if (String.IsNullOrEmpty(id))
+            if (id == null)
             {
                 return BadRequest();
             }
+            var restaurant = this.restaurantsService.GetById((Guid)id);
 
-            try
+            if (restaurant == null)
             {
-                var restaurantId = Guid.Parse(id);
-                var restaurant = this.restaurantsService.GetById(restaurantId);
-
-                if (restaurant == null)
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    var response = this.mapper.MapRestaurant(restaurant);
-
-                    return Ok(response);
-                }
+                return NotFound();
             }
-            catch (FormatException)
+            else
             {
-                return BadRequest("Restaurant id is incorrect.");
+                var response = this.mapper.MapRestaurant(restaurant);
+
+                return Ok(response);
             }
         }
 
@@ -101,7 +92,7 @@ namespace FindAndBook.API.Controllers
                 var foundRestaurants = this.restaurantsService
                     .FindBy(criteria.SearchBy, criteria.Pattern);
 
-                var response = this.mapper.MapRestaurantsCollection(foundRestaurants);                
+                var response = this.mapper.MapRestaurantsCollection(foundRestaurants);
 
                 return Ok(response);
             }
@@ -113,40 +104,32 @@ namespace FindAndBook.API.Controllers
 
         [HttpGet]
         [Route("api/users/{id}/restaurants")]
-        public IHttpActionResult GetManagerRestaurants([FromUri]string id)
+        public IHttpActionResult GetManagerRestaurants([FromUri]Guid? id)
         {
-            if (String.IsNullOrEmpty(id))
+            if (id == null)
             {
                 return BadRequest();
             }
 
-            try
+            var currentUserId = this.authProvider.CurrentUserID;
+
+            if (id != currentUserId)
             {
-                var userId = Guid.Parse(id);
-                var currentUserId = this.authProvider.CurrentUserID;
-
-                if(userId != currentUserId)
-                {
-                    return Content(System.Net.HttpStatusCode.Forbidden, "You can see only list of your restaurants");
-                }
-
-                var restaurants = this.restaurantsService.GetRestaurantsOfManger(userId);
-
-                var response = this.mapper.MapRestaurantsCollection(restaurants);
-
-                return Ok(response);
+                return Content(System.Net.HttpStatusCode.Forbidden, "You can see only list of your restaurants");
             }
-            catch (FormatException)
-            {
-                return BadRequest("User id is incorrect.");
-            }
+
+            var restaurants = this.restaurantsService.GetRestaurantsOfManger((Guid)id);
+
+            var response = this.mapper.MapRestaurantsCollection(restaurants);
+
+            return Ok(response);
         }
 
         [HttpPut]
         [Route("api/restaurants/{id}")]
-        public IHttpActionResult EditRestaurant([FromUri] string id, RestaurantModel model)
+        public IHttpActionResult EditRestaurant([FromUri] Guid? id, RestaurantModel model)
         {
-            if (String.IsNullOrEmpty(id))
+            if (id == null)
             {
                 return BadRequest("Restaurant id is required.");
             }
@@ -156,71 +139,55 @@ namespace FindAndBook.API.Controllers
                 return BadRequest(ModelState);
             }
 
-            try
+            var restaurant = this.restaurantsService.GetById((Guid)id);
+            if (restaurant == null)
             {
-                var restaurantId = Guid.Parse(id);
-                var restaurant = this.restaurantsService.GetById(restaurantId);
-                if(restaurant == null)
-                {
-                    return NotFound();
-                }
-
-                var currentUserId = this.authProvider.CurrentUserID;
-
-                if (currentUserId == restaurant.ManagerId)
-                {
-                    var updatedRestaurant = this.restaurantsService.Edit(restaurantId, model.Contact, 
-                        model.Details, model.PhotoUrl, model.WeekdayHours, model.WeekendHours, 
-                        model.AverageBill, model.MaxPeopleCount);
-
-                    var response = this.mapper.MapRestaurant(updatedRestaurant);
-
-                    return Ok(response);
-                }
-                else
-                {
-                    return Content(System.Net.HttpStatusCode.Forbidden, "Only manager of this restaurant can edit it.");
-                }
+                return NotFound();
             }
-            catch (FormatException)
+
+            var currentUserId = this.authProvider.CurrentUserID;
+
+            if (currentUserId == restaurant.ManagerId)
             {
-                return BadRequest("Restaurant id is incorrect");
+                var updatedRestaurant = this.restaurantsService.Edit((Guid)id, model.Contact,
+                    model.Details, model.PhotoUrl, model.WeekdayHours, model.WeekendHours,
+                    model.AverageBill, model.MaxPeopleCount);
+
+                var response = this.mapper.MapRestaurant(updatedRestaurant);
+
+                return Ok(response);
+            }
+            else
+            {
+                return Content(System.Net.HttpStatusCode.Forbidden, "Only manager of this restaurant can edit it.");
             }
         }
 
         [HttpDelete]
         [Route("api/restaurants/{id}")]
-        public IHttpActionResult DeleteRestaurant([FromUri] string id)
+        public IHttpActionResult DeleteRestaurant([FromUri] Guid? id)
         {
-            if (String.IsNullOrEmpty(id))
+            if (id == null)
             {
                 return BadRequest("Restaurant Id is required.");
             }
 
-            try
+            var restaurant = this.restaurantsService.GetById((Guid)id);
+            if (restaurant == null)
             {
-                var restaurantId = Guid.Parse(id);
-                var restaurant = this.restaurantsService.GetById(restaurantId);
-                if (restaurant == null)
-                {
-                    return NotFound();
-                }
-                var currentUserId = this.authProvider.CurrentUserID;
-
-                if (currentUserId == restaurant.ManagerId)
-                {
-                    this.restaurantsService.Delete(restaurantId);
-
-                    return Ok();
-                }
-                else
-                {
-                    return Content(System.Net.HttpStatusCode.Forbidden, "Only manager of this restaurant can delete it.");
-                }
+                return NotFound();
             }
-            catch (FormatException)
+            var currentUserId = this.authProvider.CurrentUserID;
+
+            if (currentUserId == restaurant.ManagerId)
             {
-                return BadRequest("Restaurant id is incorrect");
+                this.restaurantsService.Delete((Guid)id);
+
+                return Ok();
+            }
+            else
+            {
+                return Content(System.Net.HttpStatusCode.Forbidden, "Only manager of this restaurant can delete it.");
             }
         }
     }

@@ -27,14 +27,6 @@ namespace FindAndBook.Tests.API
         private IQueryable<Booking> queryableBookings;
 
         [Test]
-        public void ActionBookATableShould_ReturnBadRequest_WhenRestaurantIdIsEmpty()
-        {
-            var result = controller.BookATable("", null);
-
-            Assert.IsInstanceOf<BadRequestErrorMessageResult>(result);
-        }
-
-        [Test]
         public void ActionBookATableShould_ReturnBadRequest_WhenRestaurantIdIsNull()
         {
             var result = controller.BookATable(null, null);
@@ -47,7 +39,7 @@ namespace FindAndBook.Tests.API
         {
             var restaurantId = Guid.NewGuid();
 
-            var result = controller.BookATable(restaurantId.ToString(), null);
+            var result = controller.BookATable(restaurantId, null);
 
             Assert.IsInstanceOf<InvalidModelStateResult>(result);
         }
@@ -57,20 +49,9 @@ namespace FindAndBook.Tests.API
         {
             var restaurantId = Guid.NewGuid();
             controller.ModelState.AddModelError("Time", "Time is required");
-            var result = controller.BookATable(restaurantId.ToString(), null);
+            var result = controller.BookATable(restaurantId, null);
 
             Assert.IsInstanceOf<InvalidModelStateResult>(result);
-        }
-
-        [Test]
-        public void ActionBookATableShould_ReturnBadRequest_WhenPassedIdIsNotValid()
-        {
-            var id = "not-valid";
-            var model = new BookingModel();
-
-            var result = controller.BookATable(id, model);
-
-            Assert.IsInstanceOf<BadRequestErrorMessageResult>(result);
         }
 
         [Test]
@@ -79,7 +60,7 @@ namespace FindAndBook.Tests.API
             var id = Guid.NewGuid();
             var model = new BookingModel();
 
-            var result = controller.BookATable(id.ToString(), model);
+            var result = controller.BookATable(id, model);
 
             authProviderMock.Verify(ap => ap.CurrentUserID, Times.Once);
         }
@@ -94,7 +75,7 @@ namespace FindAndBook.Tests.API
                 PeopleCount = 5
             };
 
-            var result = controller.BookATable(id.ToString(), model);
+            var result = controller.BookATable(id, model);
 
             bookingsServiceMock.Verify(s => s.BookTable(id, currentUserId, model.Time, model.PeopleCount), Times.Once);
         }
@@ -112,7 +93,7 @@ namespace FindAndBook.Tests.API
             bookingsServiceMock.Setup(s => s.BookTable(id, currentUserId, model.Time, model.PeopleCount))
                 .Returns(() => null);
 
-            var result = controller.BookATable(id.ToString(), model);
+            var result = controller.BookATable(id, model);
 
             Assert.IsInstanceOf<NegotiatedContentResult<string>>(result);
         }
@@ -130,7 +111,7 @@ namespace FindAndBook.Tests.API
             bookingsServiceMock.Setup(s => s.BookTable(id, currentUserId, model.Time, model.PeopleCount))
                 .Returns(() => booking);
 
-            var result = controller.BookATable(id.ToString(), model);
+            var result = controller.BookATable(id, model);
 
             mapperMock.Verify(m => m.MapBooking(booking));
         }
@@ -148,17 +129,9 @@ namespace FindAndBook.Tests.API
             bookingsServiceMock.Setup(s => s.BookTable(id, currentUserId, model.Time, model.PeopleCount))
                 .Returns(() => booking);
 
-            var result = controller.BookATable(id.ToString(), model);
+            var result = controller.BookATable(id, model);
 
             Assert.IsInstanceOf<OkNegotiatedContentResult<BookingModel>>(result);
-        }
-
-        [Test]
-        public void ActionCancelBookingShould_ReturnBadRequest_WhenBookingIdIsEmpty()
-        {
-            var result = controller.CancelBooking("");
-
-            Assert.IsInstanceOf<BadRequestErrorMessageResult>(result);
         }
 
         [Test]
@@ -170,21 +143,11 @@ namespace FindAndBook.Tests.API
         }
 
         [Test]
-        public void ActionCancelBookingShould_ReturnBadRequest_WhenPassedIdIsNotValid()
-        {
-            var id = "not-valid";
-
-            var result = controller.CancelBooking(id);
-
-            Assert.IsInstanceOf<BadRequestErrorMessageResult>(result);
-        }
-
-        [Test]
         public void ActionCancelBookingShould_CallServiceMethodGetById_WhenPassedIdIsValid()
         {
             var id = Guid.NewGuid();
 
-            var result = controller.CancelBooking(id.ToString());
+            var result = controller.CancelBooking(id);
 
             bookingsServiceMock.Verify(s => s.GetById(id), Times.Once);
         }
@@ -196,7 +159,7 @@ namespace FindAndBook.Tests.API
             bookingsServiceMock.Setup(s => s.GetById(id))
                 .Returns(() => null);
 
-            var result = controller.CancelBooking(id.ToString());
+            var result = controller.CancelBooking(id);
 
             Assert.IsInstanceOf<NotFoundResult>(result);
         }
@@ -206,7 +169,7 @@ namespace FindAndBook.Tests.API
         {
             var id = Guid.NewGuid();
 
-            var result = controller.CancelBooking(id.ToString());
+            var result = controller.CancelBooking(id);
 
             authProviderMock.Verify(ap => ap.CurrentUserID, Times.Once);
         }
@@ -218,7 +181,7 @@ namespace FindAndBook.Tests.API
             authProviderMock.Setup(ap => ap.CurrentUserID)
                 .Returns(() => Guid.NewGuid());
 
-            var result = controller.CancelBooking(id.ToString());
+            var result = controller.CancelBooking(id);
 
             Assert.IsInstanceOf<NegotiatedContentResult<string>>(result);
         }
@@ -228,7 +191,7 @@ namespace FindAndBook.Tests.API
         {
             var id = Guid.NewGuid();
 
-            var result = controller.CancelBooking(id.ToString());
+            var result = controller.CancelBooking(id);
 
             bookingsServiceMock.Verify(s => s.Delete(booking), Times.Once);
         }
@@ -238,17 +201,9 @@ namespace FindAndBook.Tests.API
         {
             var id = Guid.NewGuid();
 
-            var result = controller.CancelBooking(id.ToString());
+            var result = controller.CancelBooking(id);
 
             Assert.IsInstanceOf<OkResult>(result);
-        }
-
-        [Test]
-        public void ActionGetAllShould_ReturnBadRequest_WhenBookingIdIsEmpty()
-        {
-            var result = controller.GetAll("", null);
-
-            Assert.IsInstanceOf<BadRequestErrorMessageResult>(result);
         }
 
         [Test]
@@ -260,22 +215,12 @@ namespace FindAndBook.Tests.API
         }
 
         [Test]
-        public void ActionGetAllShould_ReturnBadRequest_WhenPassedIdIsNotValid()
-        {
-            var id = "not-valid";
-
-            var result = controller.GetAll(id, null);
-
-            Assert.IsInstanceOf<BadRequestErrorMessageResult>(result);
-        }
-
-        [Test]
         public void ActionGetAllShould_CallServiceMethodGetAllOfRestaurant_WhenTimeIsNotPassed()
         {
             var id = Guid.NewGuid();
             var criteria = new BookingCriteria();
 
-            var result = controller.GetAll(id.ToString(), criteria);
+            var result = controller.GetAll(id, criteria);
 
             bookingsServiceMock.Verify(s => s.GetAllOfRestaurant(id), Times.Once);
         }
@@ -286,7 +231,7 @@ namespace FindAndBook.Tests.API
             var id = Guid.NewGuid();
             var criteria = new BookingCriteria();
 
-            var result = controller.GetAll(id.ToString(), criteria);
+            var result = controller.GetAll(id, criteria);
 
             mapperMock.Verify(m => m.MapBookingsCollection(queryableBookings), Times.Once);
         }
@@ -297,7 +242,7 @@ namespace FindAndBook.Tests.API
             var id = Guid.NewGuid();
             var criteria = new BookingCriteria();
 
-            var result = controller.GetAll(id.ToString(), criteria);
+            var result = controller.GetAll(id, criteria);
 
             Assert.IsInstanceOf<OkNegotiatedContentResult<List<BookingModel>>>(result);
         }
@@ -311,7 +256,7 @@ namespace FindAndBook.Tests.API
                 Time = new DateTime()
             };
 
-            var result = controller.GetAll(id.ToString(), criteria);
+            var result = controller.GetAll(id, criteria);
 
             bookingsServiceMock.Verify(s => s.GetAllOn((DateTime)criteria.Time, id), Times.Once);
         }
@@ -325,7 +270,7 @@ namespace FindAndBook.Tests.API
                 Time = new DateTime()
             };
 
-            var result = controller.GetAll(id.ToString(), criteria);
+            var result = controller.GetAll(id, criteria);
 
             mapperMock.Verify(m => m.MapBookingsCollection(queryableBookings), Times.Once);
         }
@@ -339,7 +284,7 @@ namespace FindAndBook.Tests.API
                 Time = new DateTime()
             };
 
-            var result = controller.GetAll(id.ToString(), criteria);
+            var result = controller.GetAll(id, criteria);
 
             Assert.IsInstanceOf<OkNegotiatedContentResult<List<BookingModel>>>(result);
         }
