@@ -191,7 +191,6 @@
   <ItemGroup>
     <Compile Include="App_Start\Constants.cs" />
     <Compile Include="App_Start\FilterConfig.cs" />
-    <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Controllers\BookingsController.cs" />
     <Compile Include="Controllers\RestaurantsController.cs" />
