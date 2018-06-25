@@ -12,7 +12,9 @@ namespace FindAndBook.Services
     {
         private const string MANAGER_ROLE = "manager";
 
-        private IRepository<User> repository;
+        private IRepository<User> usersRepository;
+
+        private IRepository<Manager> managersRepository;
 
         private IUnitOfWork unitOfWork;
 
@@ -20,9 +22,10 @@ namespace FindAndBook.Services
 
         private IManagersFactory managerFactory;
 
-        public UsersService(IRepository<User> repository, IUnitOfWork unitOfWork, IUsersFactory usersFactory, IManagersFactory managerFactory)
+        public UsersService(IRepository<User> usersRepository, IRepository<Manager> managersRepository, IUnitOfWork unitOfWork, IUsersFactory usersFactory, IManagersFactory managerFactory)
         {
-            this.repository = repository;
+            this.usersRepository = usersRepository;
+            this.managersRepository = managersRepository;
             this.unitOfWork = unitOfWork;
             this.usersFactory = usersFactory;
             this.managerFactory = managerFactory;
@@ -30,33 +33,41 @@ namespace FindAndBook.Services
 
         public User GetById(Guid id)
         {
-            var foundUser = this.repository.GetById(id);
+            var foundUser = this.usersRepository.GetById(id);
 
             return foundUser;
         }
 
         public User GetByUsername(string username)
         {
-            return this.repository
+            return this.usersRepository
                 .All
-                .Include(x => x.Bookings)
                 .FirstOrDefault(u => u.UserName == username);
         }
 
         public User GetByUsernameAndPassword(string username, string password)
         {
-            return this.repository
+            return this.usersRepository
                 .All
                 .FirstOrDefault(u => u.UserName == username && u.Password == password);
         }
 
-        public User GetUserWithBookings(Guid id)
+        public User GetUser(Guid id)
         {
-            return this.repository
+            return this.usersRepository
                 .All
                 .Where(x => x.Id == id)
                 .Include(x => x.Bookings)
                 .FirstOrDefault();
+        }
+
+        public Manager GetManager(Guid id)
+        {
+            return this.managersRepository
+                .All
+                .Include(m => m.Bookings)
+                .Include(m => m.Restaurants)
+                .FirstOrDefault(m => m.Id == id);
         }
 
         public User Create(string username, string password, string email, string firstName, string lastName, string phoneNumber, string role)
@@ -71,26 +82,21 @@ namespace FindAndBook.Services
                 user = this.usersFactory.Create(username, password, email, firstName, lastName, phoneNumber);
             }
 
-            this.repository.Add(user);
+            this.usersRepository.Add(user);
             this.unitOfWork.Commit();
 
             return user;
         }
 
-        public IQueryable<User> GetAll()
-        {
-            return this.repository.All;
-        }
-
         public bool Delete(Guid id)
         {
-            var user = this.repository.GetById(id);
+            var user = this.usersRepository.GetById(id);
             if (user == null)
             {
                 return false;
             }
 
-            this.repository.Delete(user);
+            this.usersRepository.Delete(user);
             this.unitOfWork.Commit();
 
             return true;

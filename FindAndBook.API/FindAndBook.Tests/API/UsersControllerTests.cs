@@ -89,7 +89,7 @@ namespace FindAndBook.Tests.API
 
             var result = controller.Register(model);
 
-            Assert.IsInstanceOf<ConflictResult>(result);
+            Assert.IsInstanceOf<NegotiatedContentResult<string>>(result);
         }
 
         [Test]
@@ -241,107 +241,138 @@ namespace FindAndBook.Tests.API
         }
 
         [Test]
-        public void ActionGetProfileShould_ReturnBadRequest_WhenPassedUsernameIsNull()
+        public void ActionGetProfileShould_ReturnBadRequest_WhenPassedUserIdIsNull()
         {
             var result = controller.GetProfile(null);
 
-            Assert.IsInstanceOf<BadRequestResult>(result);
+            Assert.IsInstanceOf<BadRequestErrorMessageResult>(result);
         }
 
         [Test]
-        public void ActionGetProfileShould_ReturnBadRequest_WhenPassedUsernameIsEmpty()
+        public void ActionGetProfileShould_GetCurrentUserId_WhenPassedUserIdIsCorrect()
         {
-            var result = controller.GetProfile("");
+            var userId = Guid.NewGuid();
 
-            Assert.IsInstanceOf<BadRequestResult>(result);
-        }
-
-        [Test]
-        public void ActionGetProfileShould_GetCurrentUserId_WhenPassedUsernameIsCorrect()
-        {
-            var username = "test";
-
-            var result = controller.GetProfile(username);
+            var result = controller.GetProfile(userId);
 
             authProviderMock.Verify(ap => ap.CurrentUserID, Times.Once);
         }
 
         [Test]
-        public void ActionGetProfileShould_CallServiceMethodGetByUsername_WhenPassedUsernameIsCorrect()
+        public void GetProfileShould_GetCurrentUserRole_WhenCurrentUserWantsToSeeHisProfile()
         {
-            var username = "test";
+            var result = controller.GetProfile(currentUserId);
 
-            var result = controller.GetProfile(username);
-
-            usersServiceMock.Verify(s => s.GetByUsername(username), Times.Once);
+            authProviderMock.Verify(ap => ap.CurrentUserRole, Times.Once);
         }
 
         [Test]
-        public void ActionGetProfileShould_ReturnNotFound_WhenUserWasNotFound()
+        public void GetProfileShould_ReturnForbidden_WhenCurrentUserAndFoundUserAreNotSame()
         {
-            var username = "test";
-            usersServiceMock.Setup(s => s.GetByUsername(It.IsAny<string>()))
-                .Returns(() => null);
-
-            var result = controller.GetProfile(username);
-
-            Assert.IsInstanceOf<NotFoundResult>(result);
-        }
-
-        [Test]
-        public void ActionGetProfileShould_ReturnForbidden_WhenCurrentUserAndFoundUserAreNotSame()
-        {
-            var username = "test";
-
-            var result = controller.GetProfile(username);
+            var userId = Guid.NewGuid();
+            var result = controller.GetProfile(userId);
 
             Assert.IsInstanceOf<NegotiatedContentResult<string>>(result);
         }
 
         [Test]
-        public void ActionGetProfileShould_CallMapper()
+        public void GetProfileShould_CallServiceMethodGetManager_WhenCurrentUserIsManager()
         {
-            var username = "test";
-            user.Id = currentUserId;
+            authProviderMock.Setup(ap => ap.CurrentUserRole)
+                .Returns(() => "Manager");
 
-            var model = new UserProfileModel()
-            {
-                Username = "test",
-                Email = "test@email.com",
-                FirstName = "Test",
-                LastName = "Test",
-                PhoneNumber = "085565226114",
-                Role = "User"
-            };
+            var result = controller.GetProfile(currentUserId);
 
-            mapperMock.Setup(m => m.MapUser(It.IsAny<User>()))
-                .Returns(() => model);
+            usersServiceMock.Verify(s => s.GetManager(currentUserId), Times.Once);
+        }
 
-            var result = controller.GetProfile(username);
+        [Test]
+        public void GetProfileShould_ReturnNotFound_WhenManagerWasNotFound()
+        {
+            authProviderMock.Setup(ap => ap.CurrentUserRole)
+                .Returns(() => "Manager");
+            usersServiceMock.Setup(s => s.GetManager(currentUserId))
+                .Returns(() => null);
+
+            var result = controller.GetProfile(currentUserId);
+
+            Assert.IsInstanceOf<NotFoundResult>(result);
+        }
+
+        [Test]
+        public void GetProfileShould_CallMapper_WhenManagerWasFound()
+        {
+            authProviderMock.Setup(ap => ap.CurrentUserRole)
+                .Returns(() => "Manager");
+            var manager = new Manager();
+            usersServiceMock.Setup(s => s.GetManager(currentUserId))
+                .Returns(() => manager);
+
+            var result = controller.GetProfile(currentUserId);
+
+            mapperMock.Verify(m => m.MapManager(manager), Times.Once);
+        }
+
+        [Test]
+        public void GetProfileShould_ReturnOkWirhManagerProfile_WhenManagerWasFound()
+        {
+            authProviderMock.Setup(ap => ap.CurrentUserRole)
+                .Returns(() => "Manager");
+            var manager = new Manager();
+            usersServiceMock.Setup(s => s.GetManager(currentUserId))
+                .Returns(() => manager);
+
+            var result = controller.GetProfile(currentUserId);
+
+            Assert.IsInstanceOf<OkNegotiatedContentResult<ManagerProfileModel>>(result);
+        }
+
+        [Test]
+        public void GetProfileShould_CallServiceMethodGetUser_WhenCurrentUserHasUserRole()
+        {
+            authProviderMock.Setup(ap => ap.CurrentUserRole)
+                .Returns(() => "User");
+
+            var result = controller.GetProfile(currentUserId);
+
+            usersServiceMock.Verify(s => s.GetUser(currentUserId), Times.Once);
+        }
+
+        [Test]
+        public void GetProfileShould_ReturnNotFound_WhenUserWasNotFound()
+        {
+            authProviderMock.Setup(ap => ap.CurrentUserRole)
+                .Returns(() => "User");
+            usersServiceMock.Setup(s => s.GetUser(currentUserId))
+                .Returns(() => null);
+
+            var result = controller.GetProfile(currentUserId);
+
+            Assert.IsInstanceOf<NotFoundResult>(result);
+        }
+
+        [Test]
+        public void GetProfileShould_CallMapper_WhenUserWasFound()
+        {
+            authProviderMock.Setup(ap => ap.CurrentUserRole)
+                .Returns(() => "User");
+            usersServiceMock.Setup(s => s.GetUser(currentUserId))
+                .Returns(() => user);
+
+            var result = controller.GetProfile(currentUserId);
 
             mapperMock.Verify(m => m.MapUser(user), Times.Once);
         }
 
         [Test]
-        public void ActionGetProfileShould_ReturnOk_WhenUserWasFound()
+        public void GetProfileShould_ReturnOkWithUserProfile_WhenUserWasFound()
         {
-            var username = "test";
-            user.Id = currentUserId;
+            authProviderMock.Setup(ap => ap.CurrentUserRole)
+                .Returns(() => "User");
+            usersServiceMock.Setup(s => s.GetUser(currentUserId))
+                .Returns(() => user);
 
-            var model = new UserProfileModel()
-            {
-                Username = "test",
-                Email = "test@email.com",
-                FirstName = "Test",
-                LastName = "Test",
-                PhoneNumber = "085565226114",
-                Role = "User"
-            };
-
-            mapperMock.Setup(m => m.MapUser(It.IsAny<User>()))
-                .Returns(() => model);
-
-            var result = controller.GetProfile(username);
+            var result = controller.GetProfile(currentUserId);
 
             Assert.IsInstanceOf<OkNegotiatedContentResult<UserProfileModel>>(result);
         }
@@ -351,30 +382,13 @@ namespace FindAndBook.Tests.API
         {
             var result = controller.DeleteUser(null);
 
-            Assert.IsInstanceOf<BadRequestResult>(result);
-        }
-
-        [Test]
-        public void ActionDeleteUserShould_ReturnBadRequest_WhenUserIdIsEmpty()
-        {
-            var result = controller.DeleteUser("");
-
-            Assert.IsInstanceOf<BadRequestResult>(result);
-        }
-
-        [Test]
-        public void ActionDeleteUserShould_ReturnBadRequest_WhenUserIdIsNotValidGuid()
-        {
-            var userId = "not-valid";
-            var result = controller.DeleteUser(userId);
-
             Assert.IsInstanceOf<BadRequestErrorMessageResult>(result);
         }
 
         [Test]
         public void ActionDeleteUserShould_GetCurrentUserId_WhenUserIdIsValid()
         {
-            var userId = user.Id.ToString();
+            var userId = user.Id;
             var result = controller.DeleteUser(userId);
 
             authProviderMock.Verify(ap => ap.CurrentUserID, Times.Once);
@@ -383,7 +397,7 @@ namespace FindAndBook.Tests.API
         [Test]
         public void ActionDeleteUserShould_ReturnForbidden_WhenCurrentUserAndUserToDeleteAreNotSame()
         {
-            var userId = user.Id.ToString();
+            var userId = user.Id;
 
             var result = controller.DeleteUser(userId);
 
@@ -393,18 +407,18 @@ namespace FindAndBook.Tests.API
         [Test]
         public void ActionDeleteUserShould_CallServiceMethodDetele_WhenCurrentUserWantsToDeleteHisProfile()
         {
-            var userId = currentUserId.ToString();
+            var userId = currentUserId;
 
             var result = controller.DeleteUser(userId);
 
-            usersServiceMock.Verify(s => s.Delete(currentUserId), Times.Once);
+            usersServiceMock.Verify(s => s.Delete(userId), Times.Once);
         }
 
         [Test]
         public void ActionDeleteUserShould_ReturnNotFound_WhenUserToDeleteWasNotFound()
         {
-            var userId = currentUserId.ToString();
-            usersServiceMock.Setup(s => s.GetById(currentUserId))
+            var userId = currentUserId;
+            usersServiceMock.Setup(s => s.GetById(userId))
                 .Returns(() => null);
 
             var result = controller.DeleteUser(userId);
@@ -414,7 +428,7 @@ namespace FindAndBook.Tests.API
 
         public void ActionDeleteUserShould_ReturnOk_WhenCurrentUserWantsToDeleteHisProfile()
         {
-            var userId = currentUserId.ToString();
+            var userId = currentUserId;
 
             var result = controller.DeleteUser(userId);
 
