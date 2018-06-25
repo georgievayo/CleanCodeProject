@@ -1,6 +1,5 @@
 ﻿using FindAndBook.Models;
 using System;
-using System.Linq;
 
 namespace FindAndBook.Services.Contracts
 {
@@ -12,11 +11,12 @@ namespace FindAndBook.Services.Contracts
 
         User GetByUsernameAndPassword(string username, string password);
 
-        User GetUserWithBookings(Guid id);
+        Manager GetManager(Guid id);
 
-        User Create(string username, string password, string email, string firstName, string lastName, string phoneNumber, string role);
+        User GetUser(Guid id);
 
-        IQueryable<User> GetAll();
+        User Create(string username, string password, string email, string firstName, 
+            string lastName, string phoneNumber, string role);
 
         bool Delete(Guid id);
     }

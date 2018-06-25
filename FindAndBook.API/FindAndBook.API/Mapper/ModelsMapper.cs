@@ -33,6 +33,26 @@ namespace FindAndBook.API.Mapper
             return mappedBookingsCollection;
         }
 
+        public ManagerProfileModel MapManager(Manager manager)
+        {
+            var queryableBookings = manager.Bookings.AsQueryable();
+            var queryableRestaurants = manager.Restaurants.AsQueryable();
+
+            var mappedManager = new ManagerProfileModel()
+            {
+                Username = manager.UserName,
+                Id = manager.Id,
+                Email = manager.Email,
+                Role = manager.Role.ToString(),
+                FirstName = manager.FirstName,
+                LastName = manager.LastName,
+                Bookings = this.MapBookingsCollection(queryableBookings),
+                Restaurants = this.MapRestaurantsCollection(queryableRestaurants)
+            };
+
+            return mappedManager;
+        }
+
         public RestaurantModel MapRestaurant(Restaurant restaurant)
         {
             var mappedRestaurant = new RestaurantModel()
@@ -68,6 +88,8 @@ namespace FindAndBook.API.Mapper
 
         public UserProfileModel MapUser(User user)
         {
+            var queryableBookings = user.Bookings.AsQueryable();
+
             var mappedUser = new UserProfileModel()
             {
                 Username = user.UserName,
@@ -75,7 +97,8 @@ namespace FindAndBook.API.Mapper
                 Email = user.Email,
                 Role = user.Role.ToString(),
                 FirstName = user.FirstName,
-                LastName = user.LastName
+                LastName = user.LastName,
+                Bookings = this.MapBookingsCollection(queryableBookings)
             };
 
             return mappedUser;

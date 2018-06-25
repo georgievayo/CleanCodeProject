@@ -1,4 +1,5 @@
-﻿using FindAndBook.API.Mapper;
+﻿using FindAndBook.API.App_Start;
+using FindAndBook.API.Mapper;
 using FindAndBook.API.Models;
 using FindAndBook.Providers.Contracts;
 using FindAndBook.Services.Contracts;
@@ -32,9 +33,9 @@ namespace FindAndBook.API.Controllers
             }
 
             var existingUser = this.usersService.GetByUsername(model.Username);
-            if(existingUser != null)
+            if (existingUser != null)
             {
-                return Conflict();
+                return Content(System.Net.HttpStatusCode.Conflict, Constants.USERNAME_CONFLICT);
             }
 
             var createdUser = this.usersService.Create(model.Username, model.Password, model.Email,
@@ -72,69 +73,77 @@ namespace FindAndBook.API.Controllers
         }
 
         [HttpGet]
-        [Route("api/users/{username}")]
-        public IHttpActionResult GetProfile([FromUri]string username)
+        [Route("api/users/{id}")]
+        public IHttpActionResult GetProfile([FromUri]Guid? id)
         {
-            if (String.IsNullOrEmpty(username))
+            if (id == null)
             {
-                return BadRequest();
+                return BadRequest(Constants.REQUIRED_USER_ID);
             }
 
             var currentUserId = this.authProvider.CurrentUserID;
-            
-            var foundUser = this.usersService.GetByUsername(username);
-            if (foundUser == null)
+
+            if (id == currentUserId)
             {
-                return NotFound();
+                var currentUserRole = this.authProvider.CurrentUserRole;
+                if (currentUserRole == Constants.MANAGER_ROLE)
+                {
+                    var foundManager = this.usersService.GetManager((Guid)id);
+
+                    if (foundManager == null)
+                    {
+                        return NotFound();
+                    }
+
+                    var response = this.mapper.MapManager(foundManager);
+
+                    return Ok(response);
+                }
+                else
+                {
+                    var foundUser = this.usersService.GetUser((Guid)id);
+                    if (foundUser == null)
+                    {
+                        return NotFound();
+                    }
+
+                    var response = this.mapper.MapUser(foundUser);
+
+                    return Ok(response);
+                }
             }
             else
             {
-                if (foundUser.Id != currentUserId)
-                {
-                    return Content(System.Net.HttpStatusCode.Forbidden, "You can see only your profile.");
-                }
-
-                var response = this.mapper.MapUser(foundUser);
-
-                return Ok(response);
+                return Content(System.Net.HttpStatusCode.Forbidden, Constants.FORBIDDEN_GET_PROFILE);
             }
         }
 
         [HttpDelete]
-        [Route("api/users/{userId}")]
-        public IHttpActionResult DeleteUser([FromUri]string userId)
+        [Route("api/users/{id}")]
+        public IHttpActionResult DeleteUser([FromUri]Guid? id)
         {
-            if (String.IsNullOrEmpty(userId))
+            if (id == null)
             {
-                return BadRequest();
+                return BadRequest(Constants.REQUIRED_USER_ID);
             }
 
-            try
-            {
-                var id = Guid.Parse(userId);
-                var currentUserId = this.authProvider.CurrentUserID;
+            var currentUserId = this.authProvider.CurrentUserID;
 
-                if(id == currentUserId)
+            if (id == currentUserId)
+            {
+                var isDeleted = this.usersService.Delete((Guid)id);
+                if (isDeleted)
                 {
-                    var isDeleted = this.usersService.Delete(id);
-                    if (isDeleted)
-                    {
-                        return Ok();
-                    }
-                    else
-                    {
-                        return NotFound();
-                    }
+                    return Ok();
                 }
                 else
                 {
-                    return Content(System.Net.HttpStatusCode.Forbidden, "You can delete only your profile.");
+                    return NotFound();
                 }
-                
             }
-            catch (FormatException)
+            else
             {
-                return BadRequest("User id is incorrect.");
+                return Content(System.Net.HttpStatusCode.Forbidden, Constants.FORBIDDEN_DELETE_PROFILE);
             }
         }
     }
