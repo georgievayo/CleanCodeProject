@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-
-namespace FindAndBook.API.App_Start
+﻿namespace FindAndBook.API.App_Start
 {
     public static class Constants
     {
@@ -20,5 +15,6 @@ namespace FindAndBook.API.App_Start
         public static string FORBIDDEN_DELETE_PROFILE = "You can delete only your profile.";
         public static string USERNAME_CONFLICT = "There is already user with that username.";
         public static string MANAGER_ROLE = "Manager";
+        public static string ERRORS_FILE = "errors.txt";
     }
 }

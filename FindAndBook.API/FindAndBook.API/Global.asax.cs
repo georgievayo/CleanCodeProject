@@ -1,6 +1,7 @@
 ﻿using Autofac;
 using Autofac.Integration.WebApi;
 using Autofac.TypedFactories;
+using FindAndBook.API.App_Start;
 using FindAndBook.API.Controllers;
 using FindAndBook.API.Mapper;
 using FindAndBook.Data;
@@ -87,7 +88,7 @@ namespace FindAndBook.API
             config.DependencyResolver = new AutofacWebApiDependencyResolver(container);
 
             GlobalConfiguration.Configure(WebApiConfig.Register);
-            FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);
+            GlobalConfiguration.Configuration.Filters.Add(new GlobalExceptionFilter());
         }
     }
 }
